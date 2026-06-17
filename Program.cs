@@ -9,6 +9,12 @@ AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 var builder = WebApplication.CreateBuilder(args);
 
 // ----------------------------------------------------------
+// 0. PORT BINDING (required for Render)
+// ----------------------------------------------------------
+var port = Environment.GetEnvironmentVariable("PORT") ?? "10000";
+builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
+
+// ----------------------------------------------------------
 // 1. DATABASE + IDENTITY
 // ----------------------------------------------------------
 
@@ -31,15 +37,12 @@ builder.Services.AddSignalR();
 
 builder.Services.AddRazorPages(options =>
 {
-    // Allow public access to Identity auth pages
     options.Conventions.AllowAnonymousToAreaPage("Identity", "/Account/Login");
     options.Conventions.AllowAnonymousToAreaPage("Identity", "/Account/Register");
     options.Conventions.AllowAnonymousToAreaPage("Identity", "/Account/ForgotPassword");
     options.Conventions.AllowAnonymousToAreaPage("Identity", "/Account/ResetPassword");
     options.Conventions.AllowAnonymousToAreaPage("Identity", "/Account/AccessDenied");
-    
 
-    // IMPORTANT: keep the Manage section protected (profile, password, etc.)
     options.Conventions.AuthorizeAreaFolder("Identity", "/Account/Manage");
 });
 builder.Services.AddControllersWithViews();
@@ -54,17 +57,9 @@ builder.Services.AddAuthorization(options =>
     options.FallbackPolicy = new AuthorizationPolicyBuilder()
         .RequireAuthenticatedUser()
         .Build();
-    options.AddPolicy("PremiumOnly", p => p.RequireClaim("plan", "premium"));    
+    options.AddPolicy("PremiumOnly", p => p.RequireClaim("plan", "premium"));
 });
 
-builder.Services.AddAuthorization(options =>
-{
-    options.AddPolicy("PremiumOnly", policy =>
-        policy.RequireClaim("plan", "premium"));   // plan=premium
-});
-// ----------------------------------------------------------
-// Build the app
-// ----------------------------------------------------------
 var app = builder.Build();
 
 // ----------------------------------------------------------
@@ -93,7 +88,6 @@ app.UseAuthorization();
 // ----------------------------------------------------------
 // 3. ENDPOINTS
 // ----------------------------------------------------------
-
 
 app.MapRazorPages();
 
