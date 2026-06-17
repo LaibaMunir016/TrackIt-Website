@@ -1,0 +1,174 @@
+@{
+    ViewData["Title"] = "Help & Support";
+    Layout = "_Layout";
+}
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"/>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+
+<style>
+    .support-container {
+        padding: 40px 20px;
+        color: rgb(29,43,54);
+    }
+
+    /* Contact Header */
+    .contact-info-bar {
+        background: #ffffff;
+        border-radius: 20px;
+        padding: 30px;
+        margin-bottom: 40px;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.05);
+        border: 1px solid rgba(0,0,0,0.05);
+    }
+
+    .contact-item {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 15px;
+    }
+
+    .contact-icon {
+        width: 50px;
+        height: 50px;
+        background: rgba(29, 43, 54, 0.1);
+        color: rgb(29, 43, 54);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.4rem;
+    }
+
+    /* Tab Styling */
+    .nav-pills .nav-link {
+        color: rgb(29, 43, 54);
+        background: #ffffff;
+        border-radius: 15px;
+        margin: 5px;
+        padding: 20px;
+        border: 1px solid rgba(0,0,0,0.05);
+        transition: all 0.3s ease;
+        text-align: center;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.02);
+    }
+
+    .nav-pills .nav-link.active {
+        background-color: rgb(29, 43, 54) !important;
+        color: #ffffff !important;
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(29, 43, 54, 0.2);
+    }
+
+    .tab-content {
+        background: #ffffff;
+        border-radius: 25px;
+        padding: 40px;
+        margin-top: 20px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        min-height: 300px;
+    }
+
+    .support-content-title {
+        color: rgb(29, 43, 54);
+        font-weight: 700;
+        margin-bottom: 20px;
+        border-left: 5px solid rgb(29, 43, 54);
+        padding-left: 15px;
+    }
+
+    .list-group-item {
+        border: none;
+        padding: 15px 0;
+        border-bottom: 1px solid rgba(0,0,0,0.05);
+    }
+
+    .signature-text {
+        color: rgb(29, 43, 54);
+    }
+</style>
+
+<div class="container support-container">
+    <div class="text-center mb-5">
+        <h2 class="fw-bold">Help & Support</h2>
+        <p class="text-muted">Direct assistance and documentation at your fingertips.</p>
+    </div>
+
+    <div class="contact-info-bar">
+        <div class="row text-center">
+            <div class="col-md-6 border-end">
+                <div class="contact-item">
+                    <div class="contact-icon"><i class="bi bi-envelope-at"></i></div>
+                    <div class="text-start">
+                        <small class="text-muted d-block">Email us at</small>
+                        <strong class="fs-5 signature-text">laibamunir.716@gmail.com</strong>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="contact-item">
+                    <div class="contact-icon"><i class="bi bi-telephone"></i></div>
+                    <div class="text-start">
+                        <small class="text-muted d-block">Call us (9am - 5pm)</small>
+                        <strong class="fs-5 signature-text">+923204749284</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <ul class="nav nav-pills nav-justified mb-3" id="pills-tab" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="pills-guide-tab" data-bs-toggle="pill" data-bs-target="#pills-guide" type="button" role="tab">
+                <i class="bi bi-book d-block mb-2 fs-3"></i>
+                User Guide
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="pills-security-tab" data-bs-toggle="pill" data-bs-target="#pills-security" type="button" role="tab">
+                <i class="bi bi-shield-check d-block mb-2 fs-3"></i>
+                Security
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="pills-billing-tab" data-bs-toggle="pill" data-bs-target="#pills-billing" type="button" role="tab">
+                <i class="bi bi-wallet2 d-block mb-2 fs-3"></i>
+                Billing & Currency
+            </button>
+        </li>
+    </ul>
+
+    <div class="tab-content" id="pills-tabContent">
+        <div class="tab-pane fade show active" id="pills-guide" role="tabpanel">
+            <h4 class="support-content-title">Getting Started</h4>
+            <p>Welcome to your financial dashboard. Here is how to manage your finances effectively:</p>
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item"><i class="bi bi-check2-circle me-2" style="color: rgb(29, 43, 54);"></i> <strong>Adding Transactions:</strong> Record your daily spending via the Expense panel.</li>
+                <li class="list-group-item"><i class="bi bi-check2-circle me-2" style="color: rgb(29, 43, 54);"></i> <strong>Tracking Goals:</strong> Monitor your progress through the Goal Achievement bar charts.</li>
+                <li class="list-group-item"><i class="bi bi-check2-circle me-2" style="color: rgb(29, 43, 54);"></i> <strong>View Reports:</strong> Analyze your spending patterns using our integrated Chart.js visuals.</li>
+            </ul>
+        </div>
+
+        <div class="tab-pane fade" id="pills-security" role="tabpanel">
+            <h4 class="support-content-title">Privacy & Protection</h4>
+            <p>Your data security is our top priority. We use industry-standard encryption to keep your records safe.</p>
+            <div class="alert alert-light border">
+                <i class="bi bi-info-circle me-2 signature-text"></i> We never share your financial data with third-party advertisers.
+            </div>
+            <p>If you suspect unauthorized access, please contact us immediately using the phone number listed in the header.</p>
+        </div>
+
+        <div class="tab-pane fade" id="pills-billing" role="tabpanel">
+            <h4 class="support-content-title">Managing Currency & Plans</h4>
+            <p>Personalize your experience by setting your local currency and managing your account.</p>
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item"><strong>Currency Settings:</strong> Change your display symbol (Rs., $, etc) in Profile Settings.</li>
+                <li class="list-group-item"><strong>Subscription:</strong> Get access to premium options.</li>
+                <li class="list-group-item"><strong>Billing Help:</strong> For any discrepancies, please reach out via our support email above.</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>

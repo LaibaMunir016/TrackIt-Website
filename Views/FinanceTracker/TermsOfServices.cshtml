@@ -1,0 +1,243 @@
+@{
+    ViewData["Title"] = "Terms of Service";
+    Layout = "_Layout2";
+}
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+
+<style>
+    /* Match your app DNA (do NOT style body here) */
+    .mainContent {
+        color: rgb(29, 43, 54);
+        font-family: inherit;
+    }
+
+    .page-header {
+        text-align: center;
+        margin-bottom: 28px;
+    }
+
+    .page-header h2 {
+        font-weight: 600; /* like your dashboard style */
+        font-size: 2rem;
+        margin: 0;
+        color: rgb(29, 43, 54);
+    }
+
+    .page-header p {
+        margin-top: 8px;
+        color: rgba(29, 43, 54, 0.70);
+    }
+
+    .page-wrap {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding-bottom: 40px; /* ✅ breathing room before footer */
+    }
+
+    .card-glass {
+        background: #ffffff;
+        border-radius: 16px;
+        border: 1px solid rgba(29, 43, 54, 0.10);
+        padding: 22px;
+        margin-bottom: 16px;
+        box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+        position: relative;
+        overflow: hidden;
+    }
+
+    /* Accent strip (same vibe as your cards) */
+    .card-glass.accent::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        top: 0;
+        height: 100%;
+        width: 4px;
+        background: rgba(29, 43, 54, 0.92);
+    }
+
+    .section-title {
+        font-weight: 700;
+        font-size: 1.05rem;
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: rgba(29,43,54,0.95);
+    }
+
+    .muted {
+        color: rgba(29,43,54,0.72);
+        line-height: 1.75;
+        margin-bottom: 0;
+    }
+
+    .tos-list {
+        margin: 0;
+        padding-left: 1.1rem;
+        color: rgba(29,43,54,0.74);
+        line-height: 1.8;
+    }
+
+    .toc a {
+        text-decoration: none;
+        color: rgba(29,43,54,0.9);
+        font-weight: 600;
+    }
+    .toc a:hover { text-decoration: underline; }
+
+    .meta-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        justify-content: center;
+        margin-top: 12px;
+    }
+
+    .meta-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 12px;
+        border-radius: 999px;
+        background: rgba(29,43,54,0.06);
+        color: rgba(29,43,54,0.92);
+        font-weight: 600;
+        font-size: 0.85rem;
+        border: 1px solid rgba(29,43,54,0.10);
+    }
+
+    .callout {
+        background: rgba(29,43,54,0.04);
+        border: 1px solid rgba(29,43,54,0.12);
+        border-radius: 16px;
+        padding: 14px 16px;
+        color: rgba(29,43,54,0.80);
+    }
+</style>
+
+<div class="container-fluid mainContent py-4">
+    <div class="page-wrap">
+
+        <div class="page-header">
+            <h2>Terms of Service</h2>
+            <p>These terms govern your use of TrackIt and its features (Expenses, Goals, Reports, Reminders).</p>
+
+            <div class="meta-row">
+                <span class="meta-chip"><i class="bi bi-calendar3"></i> Effective: @DateTime.Now.ToString("MMMM dd, yyyy")</span>
+                <span class="meta-chip"><i class="bi bi-shield-check"></i> Data-first experience</span>
+                <span class="meta-chip"><i class="bi bi-person-check"></i> User responsibility</span>
+            </div>
+        </div>
+
+        <div class="card-glass">
+            <div class="section-title"><i class="bi bi-list-ul"></i> Quick Navigation</div>
+            <div class="row g-2 toc">
+                <div class="col-md-6">
+                    <ul class="tos-list">
+                        <li><a href="#acceptance">1. Acceptance of Terms</a></li>
+                        <li><a href="#eligibility">2. Eligibility</a></li>
+                        <li><a href="#account">3. Account & Security</a></li>
+                        <li><a href="#usage">4. Acceptable Use</a></li>
+                        <li><a href="#content">5. Your Data & Content</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-6">
+                    <ul class="tos-list">
+                        <li><a href="#reminders">6. Reminders & Notifications</a></li>
+                        <li><a href="#reports">7. Reports & Analytics</a></li>
+                        <li><a href="#disclaimer">8. Disclaimers</a></li>
+                        <li><a href="#limits">9. Limitation of Liability</a></li>
+                        <li><a href="#contact">10. Contact</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div id="acceptance" class="card-glass accent">
+            <div class="section-title"><i class="bi bi-check2-circle"></i> 1. Acceptance of Terms</div>
+            <p class="muted">
+                By accessing or using TrackIt, you agree to follow these Terms of Service. If you do not agree,
+                please discontinue using the application.
+            </p>
+        </div>
+
+        <div id="eligibility" class="card-glass accent">
+            <div class="section-title"><i class="bi bi-person-badge"></i> 2. Eligibility</div>
+            <p class="muted">
+                You must be able to form a legally binding agreement in your jurisdiction to use TrackIt.
+                If you are using TrackIt on behalf of an organization, you confirm that you are authorized to do so.
+            </p>
+        </div>
+
+        <div id="account" class="card-glass accent">
+            <div class="section-title"><i class="bi bi-key"></i> 3. Account & Security</div>
+            <p class="muted">
+                You are responsible for maintaining the confidentiality of your account credentials and for all activity
+                that occurs under your account.
+            </p>
+            <ul class="tos-list mt-2">
+                <li>Use a strong password and keep it private.</li>
+                <li>Notify support if you suspect unauthorized access.</li>
+                <li>Ensure your account information is accurate and up to date.</li>
+            </ul>
+        </div>
+
+        <div id="usage" class="card-glass accent">
+            <div class="section-title"><i class="bi bi-hand-thumbs-up"></i> 4. Acceptable Use</div>
+            <p class="muted">
+                You agree to use TrackIt only for lawful purposes. You must not misuse the application or attempt to disrupt
+                its operation or security.
+            </p>
+        </div>
+
+        <div id="content" class="card-glass accent">
+            <div class="section-title"><i class="bi bi-database"></i> 5. Your Data & Content</div>
+            <p class="muted">
+                You control what you add to TrackIt (expenses, income, goals, reminders). You are responsible for the accuracy
+                of the information you enter.
+            </p>
+        </div>
+
+        <div id="reminders" class="card-glass accent">
+            <div class="section-title"><i class="bi bi-bell"></i> 6. Reminders & Notifications</div>
+            <p class="muted">
+                Reminders are provided as a convenience tool. Notification delivery can depend on browser settings and device permissions.
+            </p>
+        </div>
+
+        <div id="reports" class="card-glass accent">
+            <div class="section-title"><i class="bi bi-bar-chart"></i> 7. Reports & Analytics</div>
+            <p class="muted">
+                Reports summarize your recorded transactions. Insights are informational and should not be treated as professional financial advice.
+            </p>
+        </div>
+
+        <div id="disclaimer" class="card-glass accent">
+            <div class="section-title"><i class="bi bi-info-circle"></i> 8. Disclaimers</div>
+            <div class="callout">
+                TrackIt is provided “as is”. We do not guarantee uninterrupted availability or error-free operation.
+            </div>
+        </div>
+
+        <div id="limits" class="card-glass accent">
+            <div class="section-title"><i class="bi bi-shield-exclamation"></i> 9. Limitation of Liability</div>
+            <p class="muted">
+                To the extent permitted by law, TrackIt and its creators will not be liable for indirect, incidental, or consequential damages
+                arising from use of the application.
+            </p>
+        </div>
+
+        <div id="contact" class="card-glass accent">
+            <div class="section-title"><i class="bi bi-envelope"></i> 10. Contact</div>
+            <p class="muted">
+                For support and questions about these terms, contact: <strong>laibamunir@gmail.com</strong>
+            </p>
+        </div>
+
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>

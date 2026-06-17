@@ -1,0 +1,195 @@
+@{
+    ViewData["Title"] = "Privacy Policy";
+    Layout = "_Layout2";
+}
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+
+<style>
+    :root {
+        --primary-navy: rgb(29, 43, 54);
+        --cream: #F5F5DC;
+    }
+
+    /* ✅ Do NOT style body inside a view (Layout controls it) */
+
+    /* ✅ Match your pages */
+    .mainContent {
+        color: rgb(29,43,54);
+        font-family: inherit; /* uses dashboard font from layout */
+    }
+
+    .page-wrap {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding-bottom: 40px; /* ✅ breathing room before footer */
+    }
+
+    .page-header {
+        text-align: center;
+        margin-bottom: 1.75rem;
+    }
+
+    .page-header h2 {
+        font-weight: 600; /* like dashboard (not extra-bold) */
+        font-size: 2rem;
+        margin: 0;
+        color: var(--primary-navy);
+    }
+
+    .page-header p {
+        margin-top: 8px;
+        color: rgba(29,43,54,0.70);
+    }
+
+    .meta-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        justify-content: center;
+        margin-top: 12px;
+    }
+
+    .meta-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 12px;
+        border-radius: 999px;
+        background: rgba(29,43,54,0.06);
+        color: rgba(29,43,54,0.92);
+        font-weight: 600;
+        font-size: 0.85rem;
+        border: 1px solid rgba(29,43,54,0.10);
+    }
+
+    .card-glass {
+        background: #ffffff;
+        border-radius: 16px;
+        border: 1px solid rgba(29,43,54,0.10);
+        padding: 22px;
+        margin-bottom: 16px;
+        box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+        position: relative;
+        overflow: hidden;
+    }
+
+    /* ✅ Accent strip like other pages */
+    .card-glass.accent::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        top: 0;
+        height: 100%;
+        width: 4px;
+        background: rgba(29, 43, 54, 0.92);
+    }
+
+    .section-title {
+        font-weight: 700;
+        font-size: 1.05rem;
+        margin-bottom: 0.75rem;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: rgba(29,43,54,0.95);
+    }
+
+    .muted {
+        color: rgba(29,43,54,0.72);
+        line-height: 1.75;
+        margin-bottom: 0.85rem;
+    }
+
+    .pp-list {
+        margin: 0;
+        padding-left: 1.1rem;
+        color: rgba(29,43,54,0.74);
+        line-height: 1.8;
+    }
+
+    .callout {
+        background: rgba(29,43,54,0.04);
+        border: 1px solid rgba(29,43,54,0.12);
+        border-radius: 16px;
+        padding: 14px 16px;
+        color: rgba(29,43,54,0.80);
+    }
+
+    .mini-card {
+        background: rgba(29,43,54,0.03);
+        border: 1px solid rgba(29,43,54,0.10);
+        border-radius: 16px;
+        padding: 16px;
+        height: 100%;
+    }
+
+    .mini-title {
+        font-weight: 800;
+        font-size: 0.9rem;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        color: rgba(29,43,54,0.75);
+        margin-bottom: 0.25rem;
+    }
+
+    .btn-brand {
+        background-color: var(--primary-navy);
+        color: white;
+        border-radius: 12px;
+        padding: 12px 18px;
+        font-weight: 700;
+        border: none;
+        transition: all 0.2s;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .btn-brand:hover {
+        background-color: #2d4152;
+        transform: translateY(-1px);
+        color: white;
+    }
+
+    .footer-note {
+        text-align: center;
+        color: rgba(29,43,54,0.65);
+        margin-top: 8px;
+        font-size: 0.9rem;
+    }
+</style>
+
+<div class="container-fluid mainContent py-4">
+    <div class="page-wrap">
+
+        <div class="page-header">
+            <h2>Privacy Policy</h2>
+            <p>How TrackIt collects, uses, and protects your information.</p>
+
+            <div class="meta-row">
+                <span class="meta-chip"><i class="bi bi-calendar3"></i> Effective: @DateTime.Now.ToString("MMMM dd, yyyy")</span>
+                <span class="meta-chip"><i class="bi bi-lock"></i> Privacy-first</span>
+                <span class="meta-chip"><i class="bi bi-person-check"></i> You control your data</span>
+            </div>
+        </div>
+
+        <div class="card-glass accent">
+            <div class="section-title"><i class="bi bi-info-circle"></i> 1. Overview</div>
+            <p class="muted">
+                TrackIt is a personal finance tracker that helps you record expenses, manage goals, view reports, and set reminders.
+                This policy explains what information we handle and why.
+            </p>
+            <div class="callout">
+                <strong>Quick summary:</strong> We use your data to provide app features (totals, charts, history, reminders).
+                We do not sell your information.
+            </div>
+        </div>
+
+
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>

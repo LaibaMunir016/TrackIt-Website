@@ -1,0 +1,376 @@
+@* TrackIt Home Page - Clean for Layout *@
+@{
+    ViewBag.Title = "Home";
+    Layout = "_Layout";
+}
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+<style>
+    .home-page {
+        --primary-dark: rgb(29, 43, 54);
+        --accent-subtle: #80C4FF;
+        --light-bg: #f5f7fa;
+        --shadow-subtle: 0 5px 15px rgba(0,0,0,0.05);
+        --color-1: #4682b4;
+        --color-2: #daa520;
+        --color-3: #3cb371;
+        --color-4: #dc143c;
+        --color-5: #9932cc;
+        --color-6: #6a5acd;
+        
+        background-color: var(--light-bg);
+        color: var(--primary-dark);
+        font-family: 'Poppins', sans-serif;
+        width: 100%;
+    }
+
+    .home-page h1,
+    .home-page h2,
+    .home-page h3 {
+        color: var(--primary-dark);
+        font-weight: 700;
+    }
+
+    /* HERO */
+    .home-page .hero {
+        text-align: center;
+        padding: 120px 20px 80px;
+        max-width: 900px;
+        margin: auto;
+        background-image: linear-gradient(180deg, var(--light-bg) 0%, #f0f3f6 100%);
+    }
+
+    .home-page .hero h1 {
+        font-size: 52px;
+        margin-bottom: 20px;
+        line-height: 1.1;
+    }
+
+    .home-page .hero p {
+        font-size: 20px;
+        color: #555;
+        line-height: 1.6;
+        font-weight: 300;
+    }
+
+    .home-page .start-btn {
+        display: inline-block;
+        margin-top: 35px;
+        padding: 16px 40px;
+        font-size: 19px;
+        background-color: var(--primary-dark);
+        color: white;
+        border-radius: 30px;
+        font-weight: 600;
+        box-shadow: 0 4px 10px rgba(29, 43, 54, 0.4);
+        transition: transform 0.2s, box-shadow 0.2s, background-color 0.2s;
+        text-decoration: none;
+    }
+
+    .home-page .start-btn:hover {
+        background-color: rgb(40, 58, 71);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 15px rgba(29, 43, 54, 0.6);
+    }
+
+    /* FEATURES */
+    .home-page .features-section {
+        padding: 60px 20px;
+        text-align: center;
+        max-width: 1100px;
+        margin: auto;
+    }
+
+    .home-page .features-section h2 {
+        margin-bottom: 50px;
+        font-size: 32px;
+    }
+
+    .home-page .cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 30px;
+    }
+
+    .home-page .card {
+        background: white;
+        padding: 30px;
+        border-radius: 12px;
+        border-bottom: 4px solid rgba(0,0,0,0.1);
+        border-top: 5px solid;
+        box-shadow: var(--shadow-subtle);
+        text-align: left;
+        transition: all 0.3s;
+    }
+
+    .home-page .card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    }
+
+    .home-page .card:nth-child(1) {
+        border-top-color: var(--color-1);
+    }
+
+    .home-page .card:nth-child(2) {
+        border-top-color: var(--color-2);
+    }
+
+    .home-page .card:nth-child(3) {
+        border-top-color: var(--color-3);
+    }
+
+    .home-page .card:nth-child(4) {
+        border-top-color: var(--color-4);
+    }
+
+    .home-page .card:nth-child(5) {
+        border-top-color: var(--color-5);
+    }
+
+    .home-page .card:nth-child(6) {
+        border-top-color: var(--color-6);
+    }
+
+    .home-page .card-icon {
+        font-size: 30px;
+        margin-bottom: 15px;
+        display: inline-block;
+        line-height: 1;
+        font-weight: bold;
+    }
+
+    .home-page .card:nth-child(1) .card-icon {
+        color: var(--color-1);
+    }
+
+    .home-page .card:nth-child(2) .card-icon {
+        color: var(--color-2);
+    }
+
+    .home-page .card:nth-child(3) .card-icon {
+        color: var(--color-3);
+    }
+
+    .home-page .card:nth-child(4) .card-icon {
+        color: var(--color-4);
+    }
+
+    .home-page .card:nth-child(5) .card-icon {
+        color: var(--color-5);
+    }
+
+    .home-page .card:nth-child(6) .card-icon {
+        color: var(--color-6);
+    }
+
+    .home-page .card h3 {
+        margin-top: 0;
+        margin-bottom: 8px;
+        font-size: 20px;
+    }
+
+    .home-page .card p {
+        line-height: 1.6;
+        color: #666;
+        font-weight: 300;
+    }
+
+    .home-page .how-it-works {
+        padding: 80px 20px;
+        text-align: center;
+        max-width: 800px;
+        margin: auto;
+    }
+
+    .home-page .how-it-works h2 {
+        font-size: 36px;
+        margin-bottom: 20px;
+    }
+
+    .home-page .how-it-works p {
+        line-height: 1.8;
+        font-size: 17px;
+        color: #444;
+    }
+
+    .home-page .cta-banner {
+        background-color: var(--primary-dark);
+        color: white;
+        padding: 60px 20px;
+        text-align: center;
+    }
+
+    .home-page .cta-banner h2 {
+        color: white;
+        font-size: 36px;
+        margin-bottom: 10px;
+    }
+
+    .home-page .cta-banner p {
+        font-size: 20px;
+        margin-bottom: 30px;
+        font-weight: 300;
+    }
+
+    .home-page .cta-btn {
+        background-color: white;
+        color: var(--primary-dark);
+        padding: 15px 35px;
+        text-decoration: none;
+        border-radius: 30px;
+        font-weight: 600;
+        font-size: 18px;
+        transition: all 0.3s;
+        box-shadow: 0 4px 10px rgba(255, 255, 255, 0.4);
+        display: inline-block;
+    }
+
+    .home-page .cta-btn:hover {
+        background-color: #f0f0f0;
+        transform: translateY(-2px);
+    }
+
+    .home-page .how-to-use {
+        padding: 80px 20px;
+        max-width: 1000px;
+        margin: auto;
+        text-align: center;
+    }
+
+    .home-page .how-to-use h2 {
+        font-size: 36px;
+        margin-bottom: 50px;
+    }
+
+    .home-page .steps-container {
+        display: flex;
+        justify-content: space-around;
+        gap: 30px;
+    }
+
+    .home-page .step {
+        flex: 1;
+        padding: 30px 20px;
+        background: white;
+        border-radius: 12px;
+        box-shadow: var(--shadow-subtle);
+        text-align: center;
+        border-top: 5px solid var(--primary-dark);
+    }
+
+    .home-page .step-number {
+        font-size: 48px;
+        font-weight: 700;
+        color: var(--primary-dark);
+        line-height: 1;
+        margin-bottom: 10px;
+    }
+
+    .home-page .step h3 {
+        font-size: 22px;
+        margin-bottom: 10px;
+    }
+
+    .home-page .step p {
+        color: #666;
+        font-weight: 300;
+    }
+
+    @@media (max-width: 768px) {
+        .home-page .steps-container {
+            flex-direction: column;
+        }
+        
+        .home-page .step {
+            margin-bottom: 20px;
+        }
+    }
+</style>
+
+<div class="home-page">
+    <section class="hero">
+        <h1>Take Control of Your Finances. Start Tracking Today.</h1>
+        <p>
+            Track your income and expenses, organize spending by categories, and monitor your savings goals in one clean dashboard. 
+            Get clear monthly summaries and category-based reports to make smarter money decisions every day with Finance Tracker.
+        </p>
+        <a asp-area="Identity" asp-page="/Account/Register" class="start-btn">
+            Get Started Now
+        </a>
+    </section>
+
+    <section class="features-section">
+        <h2>Features Designed to Help You Thrive</h2>
+        <div class="cards">
+            <div class="card">
+                <span class="card-icon">🧾</span>
+                <h3>Easy Expense Tracking</h3>
+                <p>Add, edit, and delete expenses anytime. View your recent transactions and keep your spending records organized by date.</p>
+            </div>
+            <div class="card">
+                <span class="card-icon">💵</span>
+                <h3>Income Management</h3>
+                <p>Record your income entries alongside expenses so you can understand your cash flow and keep all your financial activity in one place.</p>
+            </div>
+            <div class="card">
+                <span class="card-icon">🎯</span>
+                <h3>Goal Tracking</h3>
+                <p>Create financial goals, track progress, and stay motivated as you work toward targets like saving for a purchase, trip, or emergency fund.</p>
+            </div>
+            <div class="card">
+                <span class="card-icon">📊</span>
+                <h3>Category Reports</h3>
+                <p>See where your money goes with category totals and breakdowns, helping you spot patterns and control unnecessary spending.</p>
+            </div>
+            <div class="card">
+                <span class="card-icon">🗓️</span>
+                <h3>Monthly Summaries</h3>
+                <p>Get a clear view of your month with total expense summaries so you can review your spending and improve month by month.</p>
+            </div>
+            <div class="card">
+                <span class="card-icon">🔒</span>
+                <h3>Secure Personal Accounts</h3>
+                <p>Your data stays private to your account. Sign up and log in securely so your expenses, income, and goals are only visible to you.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="how-it-works">
+        <h2>Simplicity in Every Step</h2>
+        <p>
+            Finance Tracker is built for clarity and speed. Simply create your account, start adding income and expenses, and organize everything by categories. 
+            Use reports to understand your monthly spending and track your goals as you work toward better financial habits.
+        </p>
+    </section>
+
+    <section class="cta-banner">
+        <h2>Ready to Build Better Money Habits?</h2>
+        <p>Create your account and start tracking your income, expenses, and goals today.</p>
+        <a asp-area="Identity" asp-page="/Account/Register" class="cta-btn">
+            Start Tracking Now
+        </a>
+    </section>
+
+    <section class="how-to-use">
+        <h2>Getting Started in 3 Simple Steps</h2>
+        <div class="steps-container">
+            <div class="step">
+                <div class="step-number">1</div>
+                <h3>Sign Up & Log In</h3>
+                <p>Create your account in seconds and log in securely to access your personal dashboard.</p>
+            </div>
+            <div class="step">
+                <div class="step-number">2</div>
+                <h3>Add Income & Expenses</h3>
+                <p>Start recording your income and spending, assign categories, and keep your transactions organized.</p>
+            </div>
+            <div class="step">
+                <div class="step-number">3</div>
+                <h3>Track Goals & View Reports</h3>
+                <p>Monitor your goals and review monthly and category reports to understand your progress and improve over time.</p>
+            </div>
+        </div>
+    </section>
+</div>

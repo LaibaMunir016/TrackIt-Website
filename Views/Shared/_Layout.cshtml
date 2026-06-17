@@ -1,0 +1,398 @@
+﻿@* File Path: Views/Shared/_Layout.cshtml *@
+@{
+    ViewBag.Title = "TrackIt";
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewBag.Title</title>
+    
+    <link rel="stylesheet" href="~/Content/Site.css" /> 
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* CSS Variables */
+        :root {
+            --primary-dark: rgb(29, 43, 54);
+            --accent-subtle: #80C4FF; 
+            --light-bg: #f5f7fa; 
+            --header-height: 60px;
+        }
+
+        *, *:before, *:after {
+            box-sizing: border-box;
+        }
+
+        body { 
+            font-family: 'Poppins', sans-serif; 
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            background-color: var(--light-bg);
+            overflow-x: hidden;
+        }
+
+        header { 
+            display: flex; justify-content: space-between; align-items: center; padding: 15px 50px; background-color: white; 
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04); position: sticky; top: 0; z-index: 1000;
+            height: var(--header-height); 
+        }
+        .brand { font-size: 26px; font-weight: 700; color: var(--primary-dark); }
+        .nav-links { display: flex; gap: 30px; }
+        .nav-links a { text-decoration: none; color: var(--primary-dark); font-weight: 600; font-size: 15px; padding: 5px 0; position: relative; }
+        
+        .buttons { display: flex; gap: 15px; align-items: center; }
+        .signup, .login {
+            text-decoration: none;
+            padding: 8px 18px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 14px;
+            display: inline-block;
+        }
+        .signup {
+            background-color: var(--primary-dark);
+            color: white;
+        }
+        .signup:hover { background-color: #1b2b36; }
+        .login {
+            background-color: transparent;
+            color: var(--primary-dark);
+            border: 1px solid var(--primary-dark);
+        }
+        .login:hover {
+            background-color: rgba(29, 43, 54, 0.05);
+        }
+
+        .content-wrapper {
+            display: flex;
+            flex-grow: 1;
+        }
+
+        .main-content {
+            flex-grow: 1; 
+            padding: 30px; 
+            background-color: var(--light-bg);
+        }
+
+        footer { 
+            background-color: var(--primary-dark);
+            padding: 60px 80px 30px; 
+            color: #ccc; 
+            font-size: 16px;
+            width: 100%; 
+        }
+        .footer-content {
+            display: grid;
+            grid-template-columns: 1.5fr 1fr 1fr; 
+            gap: 50px; 
+            max-width: 1200px;
+            margin: auto;
+            margin-bottom: 40px;
+        }
+
+        .footer-col { text-align: left; }
+        .footer-col h4 { font-size: 19px; color: white; margin-bottom: 20px; font-weight: 700; }
+        .footer-col ul { list-style: none; padding: 0; margin: 0; }
+        .footer-col ul li { margin-bottom: 12px; }
+        .footer-col ul li a { text-decoration: none; color: #ccc; transition: color 0.3s; font-weight: 400; }
+        .footer-col ul li a:hover { color: var(--accent-subtle); }
+        .contact-info p { margin: 8px 0; font-weight: 400; }
+        .contact-info a { color: #ccc; text-decoration: none; }
+
+        .footer-cta a {
+            display: inline-block;
+            margin-top: 15px;
+            background-color: white; 
+            color: var(--primary-dark);
+            padding: 10px 25px;
+            border-radius: 30px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: background-color 0.3s;
+        }
+        .footer-cta a:hover { background-color: #f0f0f0; }
+
+        .footer-bottom {
+            text-align: center;
+            padding-top: 20px;
+            border-top: 1px solid #4a5d6a; 
+            color: #999;
+            font-size: 14px;
+        }
+        .footer-brand {
+            font-size: 28px; 
+            font-weight: 700;
+            color: white; 
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        @@media (max-width: 992px) {
+            .footer-content { grid-template-columns: repeat(2, 1fr); }
+            footer { padding: 40px 30px 20px; }
+        }
+        @@media (max-width: 576px) {
+            .footer-content { grid-template-columns: 1fr; }
+            footer { padding: 30px 20px 15px; }
+        }
+        
+        /* RESPONSIVE MEDIA QUERIES */
+        @@media (max-width: 1200px) {
+            header {
+                padding: 15px 30px;
+            }
+            .main-content {
+                padding: 25px;
+            }
+            .footer-content {
+                gap: 40px;
+            }
+        }
+        
+        @@media (max-width: 992px) {
+            header {
+                padding: 12px 25px;
+            }
+            .brand {
+                font-size: 22px;
+            }
+            .nav-links {
+                gap: 20px;
+            }
+            .nav-links a {
+                font-size: 14px;
+            }
+            .signup, .login {
+                padding: 6px 15px;
+                font-size: 13px;
+            }
+            .main-content {
+                padding: 20px;
+            }
+            :root {
+                --header-height: 55px;
+            }
+            header {
+                height: var(--header-height);
+            }
+        }
+        
+        @@media (max-width: 768px) {
+            header {
+                padding: 10px 20px;
+                flex-wrap: wrap;
+                height: auto;
+                min-height: 55px;
+            }
+            .brand {
+                font-size: 20px;
+                margin-bottom: 5px;
+            }
+            .nav-links {
+                gap: 15px;
+                order: 3;
+                width: 100%;
+                justify-content: center;
+                margin-top: 10px;
+            }
+            .nav-links a {
+                font-size: 13px;
+            }
+            .buttons {
+                gap: 10px;
+            }
+            .signup, .login {
+                padding: 5px 12px;
+                font-size: 12px;
+            }
+            .main-content {
+                padding: 15px;
+            }
+            :root {
+                --header-height: auto;
+            }
+            .footer-brand {
+                font-size: 24px;
+            }
+            .footer-col h4 {
+                font-size: 17px;
+                margin-bottom: 15px;
+            }
+            .footer-col ul li {
+                margin-bottom: 10px;
+            }
+            .footer-col ul li a, 
+            .footer-col p,
+            .contact-info p {
+                font-size: 14px;
+            }
+            .footer-cta a {
+                padding: 8px 20px;
+                font-size: 14px;
+            }
+        }
+        
+        @@media (max-width: 576px) {
+            header {
+                flex-direction: column;
+                align-items: center;
+                padding: 10px 15px;
+                gap: 10px;
+            }
+            .brand {
+                font-size: 18px;
+                margin-bottom: 0;
+                order: 1;
+            }
+            .nav-links {
+                order: 2;
+                width: auto;
+                margin-top: 0;
+                justify-content: center;
+                gap: 12px;
+                flex-wrap: wrap;
+            }
+            .nav-links a {
+                font-size: 12px;
+            }
+            .buttons {
+                order: 3;
+                gap: 8px;
+            }
+            .signup, .login {
+                padding: 4px 10px;
+                font-size: 11px;
+            }
+            .main-content {
+                padding: 12px;
+            }
+            .content-wrapper {
+                min-height: calc(100vh - var(--header-height, 60px) - 100px);
+            }
+        }
+        
+        @@media (max-width: 400px) {
+            .brand {
+                font-size: 16px;
+            }
+            .nav-links {
+                gap: 10px;
+            }
+            .nav-links a {
+                font-size: 11px;
+            }
+            .buttons {
+                gap: 6px;
+            }
+            .signup, .login {
+                padding: 3px 8px;
+                font-size: 10px;
+            }
+            .main-content {
+                padding: 10px;
+            }
+            .footer-cta a {
+                padding: 6px 15px;
+                font-size: 13px;
+            }
+            .footer-bottom {
+                font-size: 12px;
+                padding-top: 15px;
+            }
+        }
+        
+        @@media (max-width: 320px) {
+            .nav-links {
+                flex-direction: column;
+                gap: 5px;
+                align-items: center;
+            }
+            .nav-links a {
+                font-size: 11px;
+                padding: 2px 0;
+            }
+            .buttons {
+                flex-direction: column;
+                gap: 5px;
+            }
+            .signup, .login {
+                width: 100px;
+                text-align: center;
+            }
+        }
+    </style>
+    
+</head>
+<body>
+
+    @* --- HEADER --- *@
+    <header>
+        <div class="brand">TrackIt</div>
+
+        <div class="nav-links">
+            @Html.ActionLink("Help", "Help", "Home")
+            @Html.ActionLink("About Us", "About", "Home")
+            @Html.ActionLink("Blog", "Blog", "Home")
+        </div>
+
+        <div class="buttons">
+            <a asp-area="Identity" asp-page="/Account/Register" class="signup">Sign Up</a>
+            <a asp-area="Identity" asp-page="/Account/Login" class="login">Login</a>
+        </div>
+    </header>
+    
+    <div class="content-wrapper">
+        <div class="main-content">
+            @RenderBody() 
+        </div>
+    </div>
+
+    @* --- FOOTER --- *@
+    <footer>
+    <div class="footer-content">
+        <div class="footer-col footer-cta">
+            <span class="footer-brand">TrackIt</span>
+            <p>Empowering you to manage your money with clarity and confidence.</p>
+            <a asp-area="Identity" asp-page="/Account/Register">Join Now</a>
+        </div>
+
+        <div class="footer-col">
+            <h4>Product & Features</h4>
+            <ul>
+                <li>Expense Tracking</li>
+                <li>Goals Tracking</li>
+                <li>Reports & Analytics</li>
+                <li>Reminders & Alerts</li>
+            </ul>
+        </div>
+
+        <div class="footer-col">
+            <h4>Company & Contact</h4>
+            <ul>
+                <li><a href="/Home/About">About Us</a></li>
+                <li><a href="/Home/Help">Help</a></li>
+                <li><a href="/Home/Blog">Blog</a></li>
+                <li><a href="/Home/TermsOfServices">Terms of Service</a></li>
+                <li><a href="/Home/PrivacyPolicy">Privacy Policy</a></li>
+            </ul>
+
+            <div class="contact-info">
+                <p style="margin-top: 20px;">Email: <a href="mailto:laibamunir@gmail.com">laibamunir@gmail.com</a></p>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer-bottom">
+        © 2025 Finance Tracker. All rights reserved.
+    </div>
+</footer>
+
+    
+    @RenderSection("scripts", required: false)
+</body>
+</html>

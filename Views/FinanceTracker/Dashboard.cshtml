@@ -1,0 +1,268 @@
+@{
+    ViewData["Title"] = "Dashboard";
+    Layout = "_Layout2";
+}
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"/>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+    .rightBar .card {
+        border-radius: 12px;
+        background-color: #f8f9fc;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+        padding: 15px;
+        margin-top: 30px;
+    }
+    .rightBar .card:first-child { margin-top: 60px; }
+    .rightBar .card-body small { color: #6c757d; }
+    .rightBar .card-body h5 { margin-top: 5px; font-weight: bold; }
+    .mainContent { color: rgba(29,43,54); }
+
+    .card-glass {
+        backdrop-filter: blur(14px);
+        -webkit-backdrop-filter: blur(14px);
+        background: #ffffff;
+        border-radius: 20px;
+        border: 1px solid rgba(255, 255, 255, 0.35);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+        padding: 28px;
+        margin-top: 10px;
+    }
+    .card-glass h4 {
+        color: rgba(29,43,54,0.9);
+        font-weight: 700;
+        text-shadow: 0 1px 2px rgba(255,255,255,0.4);
+        margin-bottom: 20px;
+    }
+    .card-glass canvas { margin-top: 10px; }
+
+    .card-glass-stats {
+        backdrop-filter: blur(14px);
+        -webkit-backdrop-filter: blur(14px);
+        background: #ffffff;
+        border-radius: 20px;
+        border: 1px solid rgba(255, 255, 255, 0.35);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+        padding: 20px 0;
+        text-align: center;
+    }
+    .card-glass-stats i {
+        font-size: 1.5rem;
+        margin-bottom: 5px;
+        color: rgba(29,43,54,0.9);
+    }
+    .card-glass-stats small {
+        display: block;
+        color: rgba(29,43,54,0.7);
+    }
+    .card-glass-stats h5 {
+        margin-top: 5px;
+        font-weight: 700;
+        color: rgba(29,43,54,0.9);
+    }
+</style>
+
+<div class="container-fluid mainContent">
+    <div class="text-center mb-4">
+        <h2>Welcome back, @ViewBag.FullName</h2>
+        <p>Here's a quick overview of your finances.</p>
+    </div>
+
+    <div class="row g-3 mb-1">
+        <div class="col-md-3">
+            <div class="card-glass-stats">
+                <i class="bi bi-cash-stack fs-4" style="color: rgb(29,43,54);"></i>
+                <small>Total Income</small>
+                <h5>@(ViewBag.Currency ?? "Rs.") @String.Format("{0:N0}", ViewBag.income)</h5>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card-glass-stats">
+                <i class="bi bi-wallet2 fs-4" style="color: rgb(29,43,54);"></i>
+                <small>Current Balance</small>
+                <h5>@(ViewBag.Currency ?? "Rs.") @String.Format("{0:N0}", ViewBag.CurrentBalance)</h5>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card-glass-stats">
+                <i class="bi bi-graph-down fs-4" style="color: rgb(29,43,54);"></i>
+                <small>Total Expenses</small>
+                <h5>@(ViewBag.Currency ?? "Rs.") @String.Format("{0:N0}", ViewBag.Expenses)</h5>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card-glass-stats">
+                <i class="bi bi-exclamation-triangle fs-4" style="color: rgb(29,43,54);"></i>
+                <small>Debt</small>
+                <h5>@(ViewBag.Currency ?? "Rs.") @String.Format("{0:N0}", ViewBag.Debt)</h5>
+            </div>
+        </div>
+    </div>
+
+    <!-- Graphs -->
+    <div class="row g-3">
+        <div class="col-md-6">
+            <div class="card-glass p-4">
+                <h4>Recent Expenses</h4>
+                <canvas id="recentExpensesChart" height="140"></canvas>
+                <div id="clickedItem" class="mt-3 text-center fw-bold"></div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card-glass p-4">
+                <h4>Expense Breakdown by Category</h4>
+                <canvas id="expenseBreakdownChart" height="140"></canvas>
+                <div id="breakdownClickedItem" class="mt-3 text-center fw-bold"></div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card-glass p-4 text-center">
+                <h4>Balance to Expense Ratio</h4>
+                <canvas id="savingsChart" height="150"></canvas>
+                <div id="savingsPercentage" class="mt-3 fw-bold"></div>
+            </div>
+        </div>
+    </div>
+
+   
+    <div class="row g-3 mt-1">
+        <div class="col-12">
+            @await Component.InvokeAsync("RecentTransactions", new { take = 15 })
+        </div>
+    </div>
+</div>
+
+<script>
+    // --- DATA FROM DATABASE (Controller sets these) ---
+    const expLabels = @Html.Raw(Json.Serialize(ViewBag.RecentLabels ?? new List<string>()));
+    const expAmounts = @Html.Raw(Json.Serialize(ViewBag.RecentAmounts ?? new List<decimal>()));
+    const expCategories = @Html.Raw(Json.Serialize(ViewBag.RecentCategories ?? new List<string>()));
+
+    const breakLabels = @Html.Raw(Json.Serialize(ViewBag.BreakdownLabels ?? new List<string>()));
+    const breakAmounts = @Html.Raw(Json.Serialize(ViewBag.BreakdownAmounts ?? new List<decimal>()));
+
+    const currencySymbol = '@(ViewBag.Currency ?? "Rs.")';
+
+    // Recent expenses line chart
+    const ctx = document.getElementById('recentExpensesChart').getContext('2d');
+    const recentExpensesChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: expLabels,
+            datasets: [{
+                label: `Amount Spent (${currencySymbol})`,
+                data: expAmounts,
+                borderColor: 'rgb(29,43,54)',
+                backgroundColor: 'rgba(29,43,54,0.2)',
+                fill: true,
+                tension: 0.4,
+                pointHoverRadius: 8,
+                pointBackgroundColor: 'rgb(29,43,54)',
+                pointHoverBackgroundColor: 'rgb(29,43,54)'
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            const cat = expCategories[context.dataIndex] || 'Expense';
+                            return `${cat}: ${currencySymbol} ${context.parsed.y.toLocaleString()}`;
+                        }
+                    }
+                },
+                legend: { display: false }
+            },
+            scales: {
+                y: { beginAtZero: true, title: { display: true, text: `Amount Spent (${currencySymbol})` } },
+                x: { title: { display: true, text: 'Date' } }
+            },
+            onClick: (evt, activeElements) => {
+                if(activeElements.length > 0){
+                    const dataIndex = activeElements[0].index;
+                    const item = expCategories[dataIndex];
+                    const amount = expAmounts[dataIndex];
+                    document.getElementById('clickedItem').innerText = `Details: ${item} (${currencySymbol} ${amount.toLocaleString()})`;
+                }
+            }
+        }
+    });
+
+    // Breakdown doughnut
+    const breakdownCtx = document.getElementById('expenseBreakdownChart').getContext('2d');
+    const categoriesData = {
+        labels: breakLabels,
+        datasets: [{
+            label: 'Expenses',
+            data: breakAmounts,
+            borderWidth: 1
+        }]
+    };
+
+    const expenseBreakdownChart = new Chart(breakdownCtx, {
+        type: 'doughnut',
+        data: categoriesData,
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { position: 'bottom' },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return `${context.label}: ${currencySymbol} ${context.parsed.toLocaleString()}`;
+                        }
+                    }
+                }
+            },
+            onClick: (evt, activeElements) => {
+                if(activeElements.length > 0){
+                    const dataIndex = activeElements[0].index;
+                    const category = breakLabels[dataIndex];
+                    const amount = breakAmounts[dataIndex];
+                    document.getElementById('breakdownClickedItem').innerText = `Category: ${category} (${currencySymbol} ${amount.toLocaleString()})`;
+                }
+            }
+        }
+    });
+
+    //  Balance-to-Expense ratio (same chart, only corrected text + percentage logic)
+    const totalExp = Number(@(ViewBag.Expenses ?? 0));
+    const currentBal = Number(@(ViewBag.CurrentBalance ?? 0));
+
+    // Expenses as % of current balance (more meaningful; avoids huge %)
+    const ratioPercent = currentBal > 0 ? ((totalExp / @ViewBag.Income) * 100).toFixed(1) : 0;
+
+    document.getElementById('savingsPercentage').innerText =
+        `Your expenses are ${ratioPercent}% of your current balance`;
+
+    const savingsCtx = document.getElementById('savingsChart').getContext('2d');
+    const savingsChart = new Chart(savingsCtx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Balance', 'Expenses'],
+            datasets: [{
+                data: [currentBal, totalExp],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { position: 'bottom' },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return `${context.label}: ${currencySymbol} ${context.parsed.toLocaleString()}`;
+                        }
+                    }
+                }
+            },
+            cutout: '70%'
+        }
+    });
+</script>

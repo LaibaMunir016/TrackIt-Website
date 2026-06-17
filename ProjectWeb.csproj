@@ -1,0 +1,47 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>aspnet-ProjectWeb-5d48d161-8ba9-493a-8ebc-17616c1695cb</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- REMOVED: <None Update="app.db" CopyToOutputDirectory="PreserveNewest" ExcludeFromSingleFile="true" /> -->
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Dapper" Version="2.1.66" />
+    <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="9.0.11" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="9.0.11" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="9.0.11" />
+    <!-- 🛑 REPLACED: Microsoft.EntityFrameworkCore.Sqlite with SQLServer -->
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.11" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="9.0.11" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.11" />
+    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="9.0.0" />
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.4" />
+</ItemGroup>
+    
+<PropertyGroup>
+  <!-- Fix: prevent duplicate assembly attributes generation -->
+  <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+  <GenerateTargetFrameworkAttribute>false</GenerateTargetFrameworkAttribute>
+  <DefaultItemExcludes>$(DefaultItemExcludes);ProjectWeb.Tests\**\*</DefaultItemExcludes>
+
+</PropertyGroup>
+
+<ItemGroup>
+  <!-- Safety: never compile generated build output -->
+  <Compile Remove="obj\**\*.cs" />
+  <Compile Remove="bin\**\*.cs" />
+</ItemGroup>
+<ItemGroup>
+  <Compile Remove="ProjectWeb.Tests\**\*.cs" />
+  <Content Remove="ProjectWeb.Tests\**\*" />
+  <None Remove="ProjectWeb.Tests\**\*" />
+  <EmbeddedResource Remove="ProjectWeb.Tests\**\*" />
+</ItemGroup>
+
+</Project>

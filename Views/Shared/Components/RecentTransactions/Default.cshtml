@@ -1,0 +1,338 @@
+@model List<ProjectWeb.Models.Expense>
+
+<style>
+    /* ENHANCED EXPENSE LIST STYLES - PREMIUM PROFESSIONAL */
+    .simple-expense-container {
+        backdrop-filter: blur(14px);
+        -webkit-backdrop-filter: blur(14px);
+        background: #ffffff;
+        border-radius: 20px;
+        border: 1px solid rgba(255, 255, 255, 0.35);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+        padding: 28px;
+        margin-top: 30px;
+        width: 100%;
+    }
+
+    .simple-expense-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 25px;
+        padding-bottom: 15px;
+        border-bottom: 2px solid rgba(29,43,54,0.08);
+    }
+
+    .simple-expense-header h4 {
+        color: rgb(29,43,54);
+        font-weight: 700;
+        margin: 0;
+        font-size: 1.4rem;
+    }
+
+    .simple-expense-count {
+        background: rgba(29,43,54,0.08);
+        color: rgb(29,43,54);
+        padding: 8px 16px;
+        border-radius: 20px;
+        font-weight: 600;
+        font-size: 0.9rem;
+        letter-spacing: 0.3px;
+    }
+
+    /* PREMIUM EXPENSE LIST */
+    .expense-list-premium {
+        background: #ffffff;
+        border-radius: 16px;
+        padding: 0;
+        overflow: hidden;
+        border: 1px solid rgba(29,43,54,0.1);
+    }
+
+    .expense-date-header-premium {
+        background: rgba(29,43,54,0.03);
+        padding: 14px 24px;
+        font-weight: 600;
+        color: rgb(29,43,54);
+        border-bottom: 1px solid rgba(29,43,54,0.1);
+        font-size: 0.95rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    /* PREMIUM EXPENSE ITEM */
+    .expense-item-premium {
+        display: flex;
+        align-items: center;
+        padding: 0;
+        border-bottom: 1px solid rgba(29,43,54,0.05);
+        background: white;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        min-height: 72px;
+        animation: fadeInUp 0.4s ease-out forwards;
+    }
+
+    .expense-item-premium:hover {
+        background: rgba(29,43,54,0.015);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(29,43,54,0.05);
+    }
+
+    .expense-item-premium:last-child { border-bottom: none; }
+
+    /* Grid layout */
+    .expense-grid {
+        display: grid;
+        grid-template-columns: 1.2fr 2fr 1fr 1fr;
+        gap: 30px;
+        align-items: center;
+        width: 100%;
+        padding: 20px 24px;
+    }
+
+    /* Category Column */
+    .expense-category-premium {
+        font-weight: 600;
+        color: rgb(29,43,54);
+        font-size: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .category-icon {
+        width: 36px;
+        height: 36px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(29,43,54,0.05);
+        color: rgb(29,43,54);
+        font-size: 1rem;
+        flex: 0 0 auto;
+    }
+
+    /* Description Column */
+    .expense-description-premium {
+        color: rgb(29,43,54);
+        font-size: 0.95rem;
+        line-height: 1.5;
+        opacity: 0.85;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .description-placeholder {
+        color: rgba(29,43,54,0.4);
+        font-style: italic;
+    }
+
+    /* Payment Method Column */
+    .expense-payment-premium {
+        color: rgb(29,43,54);
+        font-size: 0.9rem;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        opacity: 0.9;
+    }
+
+    .payment-badge {
+        background: rgba(29,43,54,0.05);
+        color: rgb(29,43,54);
+        padding: 4px 10px;
+        border-radius: 6px;
+        font-size: 0.85rem;
+        font-weight: 500;
+        display: inline-block;
+        max-width: 100%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    /* Amount Column */
+    .expense-amount-premium {
+        font-weight: 700;
+        color: #e74c3c;
+        font-size: 1.1rem;
+        text-align: right;
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 8px;
+        white-space: nowrap;
+    }
+
+    .amount-currency {
+        font-size: 0.9rem;
+        opacity: 0.8;
+        font-weight: 500;
+        color: rgb(29,43,54);
+    }
+
+    /* No expenses state */
+    .no-expenses-premium {
+        text-align: center;
+        padding: 60px 20px;
+        color: rgba(29,43,54,0.5);
+    }
+
+    .no-expenses-premium i {
+        font-size: 3.5rem;
+        margin-bottom: 20px;
+        opacity: 0.2;
+    }
+
+    .no-expenses-premium h5 {
+        color: rgba(29,43,54,0.5);
+        margin-bottom: 10px;
+        font-weight: 600;
+    }
+
+    .no-expenses-premium p {
+        color: rgba(29,43,54,0.4);
+        font-size: 0.95rem;
+        margin: 0;
+    }
+
+    /* Responsive Design - NO fixed pixels for layout */
+    @@media (max-width: 992px) {
+        .expense-grid {
+            grid-template-columns: 1fr 2fr;
+            gap: 20px;
+            row-gap: 15px;
+        }
+
+        .expense-amount-premium,
+        .expense-payment-premium {
+            grid-column: span 2;
+            justify-content: flex-start;
+            text-align: left;
+            border-top: 1px solid rgba(29,43,54,0.05);
+            padding-top: 15px;
+            margin-top: 5px;
+        }
+
+        .expense-amount-premium {
+            justify-content: space-between;
+        }
+
+        .expense-description-premium {
+            white-space: normal;
+        }
+    }
+
+    @@media (max-width: 768px) {
+        .simple-expense-container { padding: 20px; }
+
+        .expense-grid {
+            grid-template-columns: 1fr;
+            gap: 15px;
+            padding: 15px;
+        }
+
+        .expense-category-premium,
+        .expense-description-premium,
+        .expense-payment-premium,
+        .expense-amount-premium {
+            grid-column: 1;
+            justify-content: flex-start;
+            text-align: left;
+            border: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .expense-payment-premium {
+            border-top: 1px solid rgba(29,43,54,0.05);
+            padding-top: 10px;
+        }
+
+        .expense-amount-premium {
+            border-top: 1px solid rgba(29,43,54,0.05);
+            padding-top: 10px;
+            font-size: 1.2rem;
+        }
+
+        .expense-description-premium {
+            white-space: normal;
+        }
+    }
+
+    @@keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+</style>
+
+<div class="simple-expense-container">
+    <div class="simple-expense-header">
+        <h4>Recent Transactions</h4>
+        <div class="simple-expense-count">
+            <span>@(Model?.Count ?? 0) items</span>
+        </div>
+    </div>
+
+    <div class="expense-list-premium">
+        @if (Model != null && Model.Count > 0)
+        {
+            var grouped = Model
+                .OrderByDescending(e => e.DateSpent)
+                .GroupBy(e => e.DateSpent.Date);
+
+            foreach (var group in grouped)
+            {
+                <div class="expense-date-header-premium">
+                    @group.Key.ToString("MMM dd, yyyy")
+                </div>
+
+                foreach (var expense in group)
+                {
+                    <div class="expense-item-premium">
+                        <div class="expense-grid">
+                            <div class="expense-category-premium">
+                                <div class="category-icon">
+                                    <i class="bi @(expense.Category?.Icon ?? "bi-circle")"></i>
+                                </div>
+                                <span>@(expense.Category?.Name ?? "General")</span>
+                            </div>
+
+                            <div class="expense-description-premium" title="@(expense.Description ?? "No description")">
+                                @if (!string.IsNullOrWhiteSpace(expense.Description))
+                                {
+                                    @expense.Description
+                                }
+                                else
+                                {
+                                    <span class="description-placeholder">No description</span>
+                                }
+                            </div>
+
+                            <div class="expense-payment-premium">
+                                <span class="payment-badge">@expense.PaymentMethod</span>
+                            </div>
+
+                            <div class="expense-amount-premium">
+                                <span class="amount-currency">@((ViewBag.Currency ?? "Rs."))</span>
+                                <span>@expense.Amount</span>
+                            </div>
+                        </div>
+                    </div>
+                }
+            }
+        }
+        else
+        {
+            <div class="no-expenses-premium">
+                <i class="bi bi-receipt"></i>
+                <h5>No recent transactions</h5>
+                <p>Your expense list is empty</p>
+            </div>
+        }
+    </div>
+</div>

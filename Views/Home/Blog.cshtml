@@ -1,0 +1,201 @@
+@{
+    ViewData["Title"] = "Financial Journal";
+    Layout = "_Layout";
+}
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"/>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+
+<style>
+    body { background-color: #fcfcfc; color: rgb(29, 43, 54); font-family: 'Inter', sans-serif; }
+    
+    /* Layout Transitions */
+    #blog-list, #blog-content { transition: all 0.4s ease-in-out; }
+    .hidden { display: none !important; }
+
+    /* Grid View Styling */
+    .blog-hero { padding: 60px 0; border-bottom: 1px solid rgba(29, 43, 54, 0.08); margin-bottom: 40px; }
+    .blog-hero h1 { font-size: 2.5rem; } /* Reduced from display-4 */
+    
+    .article-card {
+        border: none;
+        background: #ffffff;
+        border-radius: 20px;
+        padding: 35px;
+        height: 100%;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+        transition: all 0.3s ease;
+        cursor: pointer;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        border: 1px solid rgba(29, 43, 54, 0.05);
+    }
+
+    .article-card h2 { font-size: 1.5rem; } /* Smaller card titles */
+
+    .article-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 20px 40px rgba(29, 43, 54, 0.1);
+        background: rgb(29, 43, 54);
+        color: white !important;
+    }
+
+    .article-card:hover .text-muted, 
+    .article-card:hover .bi,
+    .article-card:hover p { color: rgba(255,255,255,0.8) !important; }
+
+    /* Content View Styling */
+    .content-wrapper { max-width: 1100px; margin: 0 auto; padding: 50px 20px; }
+    
+    .article-meta-side {
+        border-right: 1px solid rgba(29, 43, 54, 0.1);
+        padding-right: 40px;
+    }
+
+    .btn-close-article {
+        background: rgb(29, 43, 54);
+        color: white;
+        border: none;
+        width: 42px;
+        height: 42px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 30px;
+        transition: transform 0.2s;
+    }
+    .btn-close-article:hover { transform: scale(1.1); color: white; }
+
+    .article-text {
+        font-size: 1.05rem; /* Reduced from 1.2rem */
+        line-height: 1.7;
+        color: rgba(29, 43, 54, 0.9);
+        padding-left: 45px;
+    }
+
+    .article-text h3 { color: rgb(29, 43, 54); font-weight: 700; font-size: 1.4rem; margin-top: 35px; margin-bottom: 15px; }
+
+    .insight-box {
+        background: rgba(29, 43, 54, 0.03);
+        padding: 25px;
+        border-radius: 20px;
+        margin: 35px 0;
+        font-size: 1rem;
+        border-left: 5px solid rgb(29, 43, 54);
+    }
+</style>
+
+<div id="blog-list">
+    <div class="blog-hero text-center">
+        <h1 class="fw-bold mb-2">Financial Journal</h1>
+        <p class="text-muted">Mastering your habits through data and goal tracking.</p>
+    </div>
+
+    <div class="container pb-5">
+        <div class="row g-4">
+            <div class="col-lg-6">
+                <div class="article-card" onclick="viewArticle('a1')">
+                    <div>
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <span class="text-muted small fw-bold text-uppercase">Tracking Logic</span>
+                            <i class="bi bi-bar-chart-line fs-5"></i>
+                        </div>
+                        <h2 class="fw-bold mb-2">The Power of Granular Expense Tracking</h2>
+                        <p class="opacity-75 small">How detailed record-keeping transforms from a chore into a powerful financial weapon.</p>
+                    </div>
+                    <div class="mt-4 small opacity-50">December 29, 2025 • 8 min read</div>
+                </div>
+            </div>
+
+            <div class="col-lg-6">
+                <div class="article-card" onclick="viewArticle('a2')">
+                    <div>
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <span class="text-muted small fw-bold text-uppercase">Goal Analytics</span>
+                            <i class="bi bi-target fs-5"></i>
+                        </div>
+                        <h2 class="fw-bold mb-2">Closing the Gap: Achieving Financial Milestones</h2>
+                        <p class="opacity-75 small">Using visual reporting and goal bars to turn abstract dreams into mathematical certainties.</p>
+                    </div>
+                    <div class="mt-4 small opacity-50">December 24, 2025 • 10 min read</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="blog-content" class="hidden">
+    <div class="content-wrapper">
+        <button class="btn-close-article" onclick="closeArticle()"><i class="bi bi-arrow-left"></i></button>
+        
+        <div class="row">
+            <div class="col-lg-4 article-meta-side">
+                <span class="text-muted fw-bold text-uppercase small" id="art-cat" style="font-size: 0.75rem;">Category</span>
+                <h1 class="fw-bold mt-2 mb-3" id="art-title" style="line-height: 1.2; font-size: 2rem;">Title</h1>
+                <p class="text-muted small" id="art-date">Date</p>
+                <hr class="my-4 opacity-10">
+                <p class="small text-muted">A deep dive into optimizing your personal financial dashboard for maximum clarity.</p>
+            </div>
+            
+            <div class="col-lg-8 article-text">
+                <div id="art-body">
+                    </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const articles = {
+        'a1': {
+            cat: 'Tracking Logic',
+            title: 'The Power of Granular Expense Tracking',
+            date: 'December 29, 2025',
+            body: `
+                <p>Most people fail to save not because they don't have enough, but because they don't know where it goes. Expense tracking is the first step toward financial sovereignty. It provides the raw data needed to make informed decisions.</p>
+                <h3>Visibility is Control</h3>
+                <p>When you log a transaction, you aren't just recording a number; you are capturing a habit. Our system allows you to see the immediate impact of your daily choices. By reviewing your daily entries, you can identify "micro-leaks"—small, recurring costs that drain your potential wealth over time.</p>
+                <div class="insight-box">
+                    <strong>Pro Insight:</strong> "You cannot manage what you do not measure. By tracking every expense, you eliminate the mystery of the empty bank account."
+                </div>
+                <h3>Interpreting Your Reports</h3>
+                <p>The reports generated by your dashboard aren't just charts; they are your financial health check-up. The spending distribution report highlights where your priorities actually lie, compared to where you think they lie.</p>
+            `
+        },
+        'a2': {
+            cat: 'Goal Analytics',
+            title: 'Closing the Gap: Achieving Financial Milestones',
+            date: 'December 24, 2025',
+            body: `
+                <p>Setting a goal is easy. Tracking it to completion is the difficult part. Visualizing your progress turns the psychological burden of saving into a rewarding game of progress bars and milestones.</p>
+                <h3>The Psychology of the Progress Bar</h3>
+                <p>Humans are biologically wired to respond to visual completion. When you see your goal bar move from 40% to 45%, your brain releases dopamine. This positive reinforcement makes it easier to choose saving over impulsive spending.</p>
+                <div class="insight-box">
+                    <strong>Goal Tip:</strong> Divide your large goals into smaller, trackable segments. Watching three small goals reach 100% is more motivating than watching one large goal move slowly.
+                </div>
+                <h3>Reports as a Roadmap</h3>
+                <p>Your goal tracking is fueled by your expense reports. By analyzing your surplus income at the end of each month, you can accurately predict your "Goal Completion Date."</p>
+            `
+        }
+    };
+
+    function viewArticle(id) {
+        const art = articles[id];
+        document.getElementById('art-cat').innerText = art.cat;
+        document.getElementById('art-title').innerText = art.title;
+        document.getElementById('art-date').innerText = art.date;
+        document.getElementById('art-body').innerHTML = art.body;
+
+        document.getElementById('blog-list').classList.add('hidden');
+        document.getElementById('blog-content').classList.remove('hidden');
+        window.scrollTo(0, 0);
+    }
+
+    function closeArticle() {
+        document.getElementById('blog-content').classList.add('hidden');
+        document.getElementById('blog-list').classList.remove('hidden');
+        window.scrollTo(0, 0);
+    }
+</script>

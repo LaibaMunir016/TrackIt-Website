@@ -1,0 +1,403 @@
+@{
+    ViewData["Title"] = "Reminders";
+    Layout = "_Layout2";
+}
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"/>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+
+<style>
+    :root { --brand: rgb(29, 43, 54); }
+
+    .mainContent {
+        color: var(--brand);
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    }
+
+    /* Header like your Dashboard */
+    .page-header { text-align: center; margin-bottom: 1.25rem; }
+    .page-header h2 { font-weight: 700; margin-bottom: 6px; }
+    .page-header p { margin: 0; color: rgba(29,43,54,0.75); }
+
+    /* Stats cards (clean white, dashboard-ish) */
+    .stat-card {
+        background: #ffffff;
+        border-radius: 20px;
+        border: 1px solid rgba(29, 43, 54, 0.10);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+        padding: 20px 0;
+        text-align: center;
+    }
+    .stat-card i { font-size: 1.5rem; margin-bottom: 5px; color: rgba(29,43,54,0.9); }
+    .stat-card small { display: block; color: rgba(29,43,54,0.7); }
+    .stat-card h5 { margin-top: 5px; font-weight: 700; color: rgba(29,43,54,0.9); }
+
+    /* ✅ Core page panels: Expenses-style (white card + left accent strip) */
+    .panel {
+        position: relative;
+        background: #fff;
+        border-radius: 18px;
+        border: 1px solid rgba(29,43,54,0.10);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.06);
+        overflow: hidden;
+        height: 100%;
+    }
+    .panel::before{
+        content:"";
+        position:absolute;
+        left:0; top:0;
+        width:4px; height:100%;
+        background: rgba(29,43,54,0.92);
+    }
+    .panel-head{
+        padding: 18px 20px 12px 20px;
+        border-bottom: 1px solid rgba(29,43,54,0.06);
+        display:flex;
+        align-items:center;
+        justify-content: space-between;
+        gap: 12px;
+    }
+    .panel-head h4{
+        margin: 0;
+        font-weight: 700;
+        color: rgba(29,43,54,0.92);
+        font-size: 1.1rem;
+    }
+    .panel-body{ padding: 16px 20px 20px 20px; }
+
+    /* Inputs like your other pages */
+    .form-control, .form-select {
+        border-radius: 12px;
+        border: 1px solid rgba(29, 43, 54, 0.12);
+        padding: 0.75rem;
+        background-color: #f8f9fc;
+        color: var(--brand);
+    }
+    .form-label {
+        font-weight: 700;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        color: rgba(29, 43, 54, 0.7);
+        margin-bottom: 8px;
+    }
+
+    /* Primary button */
+    .btn-dark-custom {
+        background-color: var(--brand) !important;
+        color: white !important;
+        border-radius: 12px;
+        padding: 12px 18px;
+        font-weight: 700;
+        border: none;
+        transition: 0.2s;
+    }
+    .btn-dark-custom:hover {
+        opacity: 0.92;
+        transform: translateY(-1px);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.10);
+    }
+
+    /* List container (not a huge card, just a clean list inside panel) */
+    .reminder-list {
+        border: 1px solid rgba(29,43,54,0.08);
+        border-radius: 14px;
+        overflow: hidden;
+        background: #fff;
+        max-height: 520px;
+        overflow-y: auto;
+    }
+    .reminder-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 14px 16px;
+        border-bottom: 1px solid rgba(29, 43, 54, 0.06);
+        transition: background 0.2s;
+    }
+    .reminder-item:hover { background-color: #f8f9fc; }
+    .reminder-item:last-child { border-bottom: none; }
+
+    .icon-pill {
+        width: 40px;
+        height: 40px;
+        border-radius: 14px;
+        background: rgba(29,43,54,0.08);
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        color: rgba(29,43,54,0.92);
+    }
+
+    .badge-soft {
+        background: rgba(29,43,54,0.08);
+        color: rgba(29,43,54,0.92);
+        border-radius: 999px;
+        padding: 6px 10px;
+        font-weight: 800;
+        letter-spacing: .04em;
+    }
+
+    /* Toast */
+    #reminderToast {
+        position: fixed; top: 20px; right: 20px; z-index: 9999;
+        background: var(--brand); color: white;
+        padding: 16px 24px; border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        display: none; animation: slideIn 0.4s ease forwards;
+    }
+    @@keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+    @@media (max-width: 576px){
+        .panel-head { padding: 16px 16px 10px 16px; }
+        .panel-body { padding: 14px 16px 16px 16px; }
+        .reminder-item { padding: 12px 14px; }
+    }
+</style>
+
+<div id="reminderToast">
+    <div class="d-flex align-items-center gap-3">
+        <i class="bi bi-bell-fill text-warning fs-4"></i>
+        <div>
+            <div class="fw-bold" id="toastTitle">Reminder</div>
+            <div class="small opacity-75">Action Required Now</div>
+        </div>
+        <button type="button" class="btn-close btn-close-white ms-auto"
+                onclick="this.parentElement.parentElement.style.display='none'"></button>
+    </div>
+</div>
+
+<div class="container-fluid mainContent py-4">
+
+    <div class="page-header mb-4">
+        <h2>Financial Reminders</h2>
+        <p>Manage your alerts and stay ahead of your deadlines.</p>
+    </div>
+
+    <div class="row g-3 mb-4">
+        <div class="col-md-4">
+            <div class="stat-card">
+                <i class="bi bi-alarm"></i>
+                <small>Active Reminders</small>
+                <h5 id="count-active">0</h5>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="stat-card">
+                <i class="bi bi-calendar-check"></i>
+                <small>Next Milestone</small>
+                <h5 id="next-milestone">None</h5>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="stat-card">
+                <i class="bi bi-shield-lock"></i>
+                <small>Status</small>
+                <h5>System Active</h5>
+            </div>
+        </div>
+    </div>
+
+    <!-- ✅ No outer wrapper card. Just two clean panels side-by-side -->
+    <div class="row g-3">
+        <div class="col-lg-5">
+            <div class="panel">
+                <div class="panel-head">
+                    <h4>Schedule New Task</h4>
+                </div>
+
+                <div class="panel-body">
+                    <div class="mb-3">
+                        <label class="form-label">Task Identifier</label>
+                        <input class="form-control" id="title" placeholder="e.g., Monthly Tax Audit" />
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Due Date & Time</label>
+                        <input class="form-control" id="due" type="datetime-local" />
+                    </div>
+
+                    <div class="row mb-4">
+                        <div class="col-6">
+                            <label class="form-label">Alert Offset</label>
+                            <select class="form-select" id="minutesBefore">
+                                <option value="0">At time</option>
+                                <option value="10" selected>10m before</option>
+                                <option value="60">1h before</option>
+                                <option value="1440">1d before</option>
+                            </select>
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label">Frequency</label>
+                            <select class="form-select" id="repeat">
+                                <option value="none">One-time</option>
+                                <option value="daily">Daily</option>
+                                <option value="weekly">Weekly</option>
+                                <option value="monthly">Monthly</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <button class="btn btn-dark-custom" id="btnAdd">Create Reminder</button>
+                        <button class="btn btn-link text-danger text-decoration-none fw-bold btn-sm" id="btnClearAll">
+                            Clear All Reminders
+                        </button>
+                        <button class="btn btn-outline-secondary btn-sm rounded-pill mt-2" id="btnEnableNotifs">
+                            Enable Browser Alerts
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-7">
+            <div class="panel">
+                <div class="panel-head">
+                    <h4>Upcoming Milestones</h4>
+
+                    <div class="d-flex gap-2">
+                        <input class="form-control form-control-sm" id="search" placeholder="Search..." style="width: 150px;">
+                        <select class="form-select form-select-sm" id="filter" style="width: 120px;">
+                            <option value="upcoming">Upcoming</option>
+                            <option value="all">All</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="panel-body">
+                    <div id="list" class="reminder-list"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+(function () {
+    const userKey = "@(User?.Identity?.Name ?? "user")";
+    const KEY = "trackit_rem_v2_" + userKey;
+    const FIRED_KEY = "fired_rem_v2_" + userKey;
+    //Ye sab inputs elements ko variables me store krne k liye hai taake baar baar getElementById na likhna pare.
+    const els = {
+        title: document.getElementById("title"),
+        due: document.getElementById("due"),
+        minutesBefore: document.getElementById("minutesBefore"),
+        repeat: document.getElementById("repeat"),
+        list: document.getElementById("list"),
+        search: document.getElementById("search"),
+        filter: document.getElementById("filter"),
+        countActive: document.getElementById("count-active"),
+        nextMilestone: document.getElementById("next-milestone")
+    };
+    //load() localStorage se reminders nikalta hai
+    function load() { try { return JSON.parse(localStorage.getItem(KEY) || "[]"); } catch { return []; } }
+    //save() reminders ko wapas localStorage me store karta hai
+    function save(items) { localStorage.setItem(KEY, JSON.stringify(items)); }
+    //Ye function decide karta hai next time kab fire hoga:
+    //Agar repeat = none → seedha dueMs
+    //Agar daily/weekly/monthly to dueMs ko future me shift karta hai
+    function getNextMs(r) {
+        let ms = r.dueMs;
+        const now = Date.now();
+        const steps = { daily: 86400000, weekly: 604800000, monthly: 2592000000 };
+        const step = steps[r.repeat] || 0;
+        if (!step) return ms;
+        while (ms < now - 30000) ms += step;
+        return ms;
+    }
+    //stats page k update krne k liye, filter
+    function render() {
+        const items = load();
+        const q = (els.search.value || "").toLowerCase();
+
+        const view = items
+            .map(r => ({ ...r, nextMs: getNextMs(r) }))
+            .filter(r => !q || r.title.toLowerCase().includes(q))
+            .sort((a,b) => a.nextMs - b.nextMs);
+
+        els.countActive.innerText = view.length;
+        if(view.length > 0) {
+            const d = new Date(view[0].nextMs);
+            els.nextMilestone.innerText = d.toLocaleDateString([], {month:'short', day:'numeric'});
+        } else {
+            els.nextMilestone.innerText = "None";
+        }
+
+        els.list.innerHTML = view.length === 0
+            ? '<div class="text-center py-5 opacity-50">No active milestones.</div>'
+            : '';
+
+        view.forEach(r => {
+            const row = document.createElement("div");
+            row.className = "reminder-item";
+            row.innerHTML = `
+                <div class="d-flex align-items-center gap-3">
+                    <div class="icon-pill">
+                        <i class="bi bi-bell"></i>
+                    </div>
+                    <div>
+                        <h6 class="mb-0 fw-bold">${r.title}</h6>
+                        <small class="text-muted">${new Date(r.nextMs).toLocaleString([], {dateStyle:'medium', timeStyle:'short'})}</small>
+                    </div>
+                </div>
+                <div class="d-flex align-items-center gap-3">
+                    <span class="badge-soft text-uppercase" style="font-size:0.65rem;">
+                        ${r.repeat === 'none' ? 'Once' : r.repeat}
+                    </span>
+                    <button class="btn btn-sm text-danger del-btn p-0"><i class="bi bi-trash3-fill"></i></button>
+                </div>
+            `;
+            row.querySelector(".del-btn").onclick = () => {
+                save(load().filter(x => x.id !== r.id));
+                render();
+            };
+            els.list.appendChild(row);
+        });
+    }
+    //form sy data leta hai add pr, local storage mai save krta hai, UT re-render
+    document.getElementById("btnAdd").onclick = () => {
+        const title = els.title.value.trim();
+        const dueVal = els.due.value;
+        if (!title || !dueVal) return alert("Please provide title and date.");
+
+        const items = load();
+        items.push({
+            id: crypto.randomUUID(),
+            title,
+            dueMs: new Date(dueVal).getTime(),
+            repeat: els.repeat.value,
+            minutesBefore: parseInt(els.minutesBefore.value)
+        });
+        save(items);
+        els.title.value = ""; els.due.value = "";
+        render();
+    };
+
+    document.getElementById("btnClearAll").onclick = () => {
+        if(confirm("Permanently erase all reminders?")) { save([]); render(); }
+    };
+
+    document.getElementById("btnEnableNotifs").onclick = () => Notification.requestPermission();
+
+    els.search.oninput = render;
+    els.filter.onchange = render;
+    //hr 30 sec bd check krta hai k koi rmainder ka time tw nhi a gya
+    setInterval(() => {
+        const items = load();
+        const now = Date.now();
+        items.forEach(r => {
+            const alertTime = getNextMs(r) - (r.minutesBefore * 60000);
+            if (now >= alertTime && now < alertTime + 30000) {
+                 const toast = document.getElementById("reminderToast");
+                 document.getElementById("toastTitle").innerText = r.title;
+                 toast.style.display = "block";
+                 setTimeout(() => toast.style.display = "none", 8000);
+            }
+        });
+    }, 30000);
+
+    render();
+})();
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>

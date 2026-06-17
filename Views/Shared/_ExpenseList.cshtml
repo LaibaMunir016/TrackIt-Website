@@ -1,0 +1,286 @@
+@model IEnumerable<ProjectWeb.Models.Expense>
+
+<div style="max-width: 900px; margin: 0 auto;">
+    @if (!Model.Any())
+    {
+        <div class="text-center py-5">
+            <i class="bi bi-inbox text-muted" style="font-size: 3rem;"></i>
+            <p class="text-muted">No expenses found for this category this month.</p>
+        </div>
+    }
+    else
+    {
+        foreach (var item in Model)
+        {
+            <div class="expense-row-card">
+                <div class="date-box">
+                    <span class="day">@item.DateSpent.ToString("dd")</span>
+                    <span class="month">@item.DateSpent.ToString("MMM")</span>
+                </div>
+
+                <div class="info-box">
+                    <div class="description">@(string.IsNullOrEmpty(item.Description) ? "No Description" : item.Description)</div>
+                    <div class="payment-method">
+                        <i class="bi bi-credit-card-2-back me-1"></i> @item.PaymentMethod
+                    </div>
+                </div>
+
+                <div class="amount-box">
+                    Rs. @item.Amount.ToString("N0")
+                </div>
+            </div>
+        }
+    }
+</div>
+
+<style>
+    .expense-row-card {
+        background: white;
+        border-radius: 12px;
+        padding: 15px 20px;
+        margin-bottom: 12px;
+        display: flex;
+        align-items: center;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        border-left: 4px solid rgb(29, 43, 54);
+    }
+
+    .date-box {
+        text-align: center;
+        padding-right: 20px;
+        border-right: 1px solid #eee;
+        min-width: 70px;
+    }
+
+    .date-box .day {
+        display: block;
+        font-size: 1.2rem;
+        font-weight: 800;
+        color: rgb(29, 43, 54);
+    }
+
+    .date-box .month {
+        display: block;
+        font-size: 0.85rem;
+        color: #6c757d;
+        text-transform: uppercase;
+    }
+
+    .info-box {
+        flex-grow: 1;
+        padding-left: 20px;
+    }
+
+    .info-box .description {
+        font-weight: 600;
+        color: #32325d;
+        margin-bottom: 4px;
+    }
+
+    .info-box .payment-method {
+        font-size: 0.85rem;
+        color: #6c757d;
+    }
+
+    .amount-box {
+        font-size: 1.1rem;
+        font-weight: 700;
+        /* UPDATED COLOR */
+        color: rgb(29, 43, 54);
+        min-width: 100px;
+        text-align: right;
+    }
+    
+    /* RESPONSIVE MEDIA QUERIES */
+    @@media (max-width: 768px) {
+        .expense-row-card {
+            padding: 12px 16px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            border-left-width: 3px;
+        }
+        
+        .date-box {
+            padding-right: 15px;
+            min-width: 60px;
+        }
+        
+        .date-box .day {
+            font-size: 1.1rem;
+        }
+        
+        .date-box .month {
+            font-size: 0.8rem;
+        }
+        
+        .info-box {
+            padding-left: 15px;
+        }
+        
+        .info-box .description {
+            font-size: 0.95rem;
+        }
+        
+        .info-box .payment-method {
+            font-size: 0.8rem;
+        }
+        
+        .amount-box {
+            font-size: 1rem;
+            min-width: 90px;
+        }
+        
+        div[style*="max-width: 900px"] {
+            padding-left: 10px;
+            padding-right: 10px;
+        }
+    }
+    
+    @@media (max-width: 576px) {
+        .expense-row-card {
+            padding: 10px 12px;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            flex-wrap: wrap;
+            position: relative;
+            padding-left: 50px;
+        }
+        
+        .date-box {
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            padding-right: 0;
+            border-right: none;
+            min-width: 45px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            border-radius: 8px 0 0 8px;
+            background-color: rgba(29, 43, 54, 0.05);
+        }
+        
+        .date-box .day {
+            font-size: 1rem;
+        }
+        
+        .date-box .month {
+            font-size: 0.75rem;
+        }
+        
+        .info-box {
+            padding-left: 0;
+            flex: 1;
+            min-width: 0;
+            padding-right: 10px;
+        }
+        
+        .info-box .description {
+            font-size: 0.9rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .info-box .payment-method {
+            font-size: 0.75rem;
+        }
+        
+        .amount-box {
+            font-size: 0.95rem;
+            min-width: auto;
+            text-align: left;
+            margin-top: 5px;
+            width: 100%;
+            padding-top: 5px;
+            border-top: 1px dashed #eee;
+        }
+        
+        .text-center.py-5 {
+            padding: 2rem 1rem !important;
+        }
+        
+        .text-center.py-5 i.bi {
+            font-size: 2.5rem !important;
+        }
+        
+        .text-center.py-5 p {
+            font-size: 0.9rem;
+        }
+    }
+    
+    @@media (max-width: 400px) {
+        .expense-row-card {
+            padding: 8px 10px;
+            padding-left: 42px;
+        }
+        
+        .date-box {
+            min-width: 40px;
+        }
+        
+        .date-box .day {
+            font-size: 0.95rem;
+        }
+        
+        .date-box .month {
+            font-size: 0.7rem;
+        }
+        
+        .info-box .description {
+            font-size: 0.85rem;
+        }
+        
+        .info-box .payment-method {
+            font-size: 0.7rem;
+        }
+        
+        .amount-box {
+            font-size: 0.9rem;
+        }
+        
+        .text-center.py-5 {
+            padding: 1.5rem 0.75rem !important;
+        }
+        
+        .text-center.py-5 i.bi {
+            font-size: 2rem !important;
+        }
+        
+        .text-center.py-5 p {
+            font-size: 0.85rem;
+        }
+    }
+    
+    @@media (max-width: 320px) {
+        .expense-row-card {
+            padding-left: 38px;
+        }
+        
+        .date-box {
+            min-width: 36px;
+        }
+        
+        .date-box .day {
+            font-size: 0.9rem;
+        }
+        
+        .date-box .month {
+            font-size: 0.65rem;
+        }
+        
+        .info-box .description {
+            font-size: 0.8rem;
+        }
+        
+        .info-box .payment-method i.bi {
+            font-size: 0.8rem;
+        }
+        
+        .amount-box {
+            font-size: 0.85rem;
+        }
+    }
+</style>

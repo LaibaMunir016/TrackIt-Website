@@ -1,0 +1,475 @@
+@{
+    ViewBag.Title = "TrackIt";
+
+    var currentController = ViewContext.RouteData.Values["controller"]?.ToString() ?? "";
+    var currentAction = ViewContext.RouteData.Values["action"]?.ToString() ?? "";
+
+    string Active(string actionName, string controllerName = "FinanceTracker")
+        => (string.Equals(currentController, controllerName, StringComparison.OrdinalIgnoreCase)
+            && string.Equals(currentAction, actionName, StringComparison.OrdinalIgnoreCase))
+            ? "active" : "";
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewBag.Title</title>
+
+    <link rel="stylesheet" href="~/Content/Site.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+    @* For sidebar icons *@
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+
+    <style>
+        /* CSS Variables */
+        :root {
+            --primary-dark: rgb(29, 43, 54);
+            --accent-subtle: #80C4FF;
+            --light-bg: #f5f7fa;
+            --header-height: 60px;
+
+            /* NEW: sidebar */
+            --sidebar-width: 250px;
+            --sidebar-text: #F5F5DC;
+        }
+
+        *, *:before, *:after { box-sizing: border-box; }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            min-height: 100vh;
+            background-color: var(--light-bg);
+            overflow-x: hidden;
+        }
+
+        .app-shell { min-height: 100vh; }
+
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: var(--sidebar-width);
+            height: 100vh;
+            background-color: var(--primary-dark);
+            color: var(--sidebar-text);
+            display: flex;
+            flex-direction: column;
+            padding: 18px 0;
+            z-index: 1200;
+            overflow-y: auto;
+
+            border-right: 1px solid rgba(255, 255, 255, 0.18);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.18);
+        }
+
+        .sidebar-brand {
+            padding: 0 22px 18px;
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--sidebar-text);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .sidebar-brand i {
+            font-size: 1.2rem;
+            color: var(--sidebar-text);
+        }
+
+        .sidebar-nav {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            padding: 0 10px;
+        }
+
+        .sidebar-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 12px;
+            margin: 0 6px;
+            border-radius: 12px;
+            text-decoration: none;
+            color: rgba(245, 245, 220, 0.85);
+            font-weight: 500;
+            transition: 0.25s;
+        }
+
+        .sidebar-link i {
+            font-size: 1.05rem;
+            width: 22px;
+            text-align: center;
+            opacity: 0.95;
+        }
+
+        .sidebar-link:hover {
+            background: rgba(255, 255, 255, 0.10);
+            color: var(--sidebar-text);
+        }
+
+        .sidebar-link.active {
+            background: rgba(255, 255, 255, 0.14);
+            color: var(--sidebar-text);
+        }
+
+        .app-main {
+            margin-left: var(--sidebar-width);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            width: calc(100% - var(--sidebar-width));
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 50px;
+            background-color: white;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+            height: var(--header-height);
+
+            position: fixed;
+            top: 0;
+            left: var(--sidebar-width);
+            right: 0;
+            z-index: 1100;
+        }
+
+        .brand { font-size: 26px; font-weight: 700; color: var(--primary-dark); }
+        .nav-links { display: flex; gap: 30px; }
+        .nav-links a { text-decoration: none; color: var(--primary-dark); font-weight: 600; font-size: 15px; padding: 5px 0; position: relative; }
+
+        .buttons { display: flex; gap: 15px; align-items: center; }
+
+        .signup {
+            text-decoration: none;
+            padding: 8px 18px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 14px;
+            display: inline-block;
+            background-color: var(--primary-dark);
+            color: white;
+        }
+        .signup:hover { background-color: #1b2b36; }
+
+        .main-content {
+            flex-grow: 1;
+            padding: 30px;
+            background-color: var(--light-bg);
+            padding-top: calc(var(--header-height) + 30px);
+        }
+
+        footer {
+            background-color: var(--primary-dark);
+            padding: 60px 80px 30px;
+            color: #ccc;
+            font-size: 16px;
+            width: 100%;
+            margin-top: auto;
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: 1.5fr 1fr 1fr;
+            gap: 50px;
+            max-width: 1200px;
+            margin: auto;
+            margin-bottom: 40px;
+        }
+
+        .footer-col { text-align: left; }
+        .footer-col h4 { font-size: 19px; color: white; margin-bottom: 20px; font-weight: 700; }
+        .footer-col ul { list-style: none; padding: 0; margin: 0; }
+        .footer-col ul li { margin-bottom: 12px; }
+        .footer-col ul li a { text-decoration: none; color: #ccc; transition: color 0.3s; font-weight: 400; }
+        .footer-col ul li a:hover { color: var(--accent-subtle); }
+        .contact-info p { margin: 8px 0; font-weight: 400; }
+        .contact-info a { color: #ccc; text-decoration: none; }
+
+        .footer-cta a {
+            display: inline-block;
+            margin-top: 15px;
+            background-color: white;
+            color: var(--primary-dark);
+            padding: 10px 25px;
+            border-radius: 30px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: background-color 0.3s;
+        }
+        .footer-cta a:hover { background-color: #f0f0f0; }
+
+        .footer-bottom {
+            text-align: center;
+            padding-top: 20px;
+            border-top: 1px solid #4a5d6a;
+            color: #999;
+            font-size: 14px;
+        }
+
+        .footer-brand {
+            font-size: 28px;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        @@media (max-width: 992px) {
+            .footer-content { grid-template-columns: repeat(2, 1fr); }
+            footer { padding: 40px 30px 20px; }
+        }
+        @@media (max-width: 576px) {
+            .footer-content { grid-template-columns: 1fr; }
+            footer { padding: 30px 20px 15px; }
+        }
+
+        @@media (max-width: 1200px) {
+            .sidebar { width: 220px; }
+            .app-main { margin-left: 220px; width: calc(100% - 220px); }
+            header { left: 220px; padding: 15px 30px; }
+            .footer-content { gap: 40px; }
+        }
+
+        @@media (max-width: 992px) {
+            .sidebar { width: 70px; padding: 18px 0; }
+            .sidebar-brand span { display: none; }
+            .sidebar-brand { justify-content: center; padding: 0 10px 18px; }
+            .sidebar-brand i { font-size: 1.5rem; }
+            .sidebar-link span { display: none; }
+            .sidebar-link { justify-content: center; padding: 12px; margin: 0 10px; }
+            .sidebar-link i { font-size: 1.2rem; width: auto; }
+            .sidebar-nav { padding: 0 5px; }
+            .app-main { margin-left: 70px; width: calc(100% - 70px); }
+            header { left: 70px; padding: 15px 25px; }
+            .brand { font-size: 22px; }
+            .nav-links { gap: 20px; }
+            .nav-links a { font-size: 14px; }
+            .main-content { padding: 25px; padding-top: calc(var(--header-height) + 25px); }
+            footer { padding: 50px 40px 25px; }
+            .footer-content { grid-template-columns: 1fr; gap: 40px; }
+        }
+
+        @@media (max-width: 768px) {
+            .sidebar { width: 60px; }
+            .sidebar-link { padding: 10px; margin: 0 8px; }
+            .sidebar-link i { font-size: 1.1rem; }
+            .app-main { margin-left: 60px; width: calc(100% - 60px); }
+            header { left: 60px; padding: 12px 20px; height: 55px; }
+            .brand { font-size: 20px; }
+            .nav-links { gap: 15px; }
+            .nav-links a { font-size: 13px; }
+            .signup { padding: 6px 15px; font-size: 13px; }
+            .main-content { padding: 20px; padding-top: calc(55px + 20px); }
+            :root { --header-height: 55px; }
+            footer { padding: 40px 30px 20px; }
+        }
+
+        @@media (max-width: 576px) {
+            .sidebar { width: 50px; padding: 15px 0; }
+            .sidebar-brand { padding: 0 5px 15px; }
+            .sidebar-brand i { font-size: 1.3rem; }
+            .sidebar-link { padding: 8px; margin: 0 6px; border-radius: 8px; }
+            .sidebar-link i { font-size: 1rem; }
+            .app-main { margin-left: 50px; width: calc(100% - 50px); }
+            header { left: 50px; padding: 10px 15px; height: 50px; }
+            .brand { font-size: 18px; }
+            .nav-links { gap: 12px; }
+            .nav-links a { font-size: 12px; }
+            .signup { padding: 5px 12px; font-size: 12px; }
+            .main-content { padding: 15px; padding-top: calc(50px + 15px); }
+            :root { --header-height: 50px; }
+            footer { padding: 30px 20px 15px; }
+            .footer-brand { font-size: 24px; }
+            .footer-col h4 { font-size: 17px; margin-bottom: 15px; }
+            .footer-col ul li { margin-bottom: 10px; }
+            .footer-col ul li a, .footer-col p, .contact-info p { font-size: 14px; }
+        }
+
+        @@media (max-width: 400px) {
+            .sidebar { width: 45px; }
+            .app-main { margin-left: 45px; width: calc(100% - 45px); }
+            header { left: 45px; padding: 8px 12px; height: 48px; }
+            .brand { font-size: 16px; }
+            .nav-links { gap: 10px; }
+            .nav-links a { font-size: 11px; }
+            .buttons { gap: 10px; }
+            .signup { padding: 4px 10px; font-size: 11px; }
+            .main-content { padding: 12px; padding-top: calc(48px + 12px); }
+            :root { --header-height: 48px; }
+            .footer-cta a { padding: 8px 20px; font-size: 14px; }
+        }
+
+        @@media (max-width: 320px) {
+            header {
+                flex-direction: column;
+                height: auto;
+                padding: 10px;
+                gap: 10px;
+                position: relative;
+                top: 0;
+                left: 0;
+                margin-left: 45px;
+                width: calc(100% - 45px);
+            }
+            .brand, .nav-links, .buttons { width: 100%; justify-content: center; }
+            .nav-links { flex-wrap: wrap; }
+            .main-content { padding-top: 20px; }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app-shell">
+
+        @* LEFT SIDEBAR (fixed) *@
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <i class="bi bi-wallet2"></i>
+                <span>TrackIt</span>
+            </div>
+
+            <nav class="sidebar-nav">
+                <a class="sidebar-link @Active("Dashboard")" href="/FinanceTracker/Dashboard">
+                    <i class="bi bi-grid"></i><span>Overview</span>
+                </a>
+
+                <a class="sidebar-link @Active("Expenses")" href="/FinanceTracker/Expenses">
+                    <i class="bi bi-receipt"></i><span>Expenses</span>
+                </a>
+
+                <a class="sidebar-link @Active("AddIncome")" href="/FinanceTracker/AddIncome">
+                    <i class="bi bi-clock-history"></i><span>Add Income</span>
+                </a>
+
+                <a class="sidebar-link @Active("Goals")" href="/FinanceTracker/Goals">
+                    <i class="bi bi-bullseye"></i><span>Goals</span>
+                </a>
+
+                <a class="sidebar-link @Active("Reminders")" href="/FinanceTracker/Reminders">
+                    <i class="bi bi-bell"></i><span>Reminders</span>
+                </a>
+
+                <a class="sidebar-link @Active("Reports")" href="/FinanceTracker/Reports">
+                    <i class="bi bi-bar-chart"></i><span>Reports</span>
+                </a>
+
+                <a class="sidebar-link @Active("Profile")" href="/FinanceTracker/Profile">
+                    <i class="bi bi-gear"></i><span>Settings</span>
+                </a>
+
+                <a class="sidebar-link @Active("Help")" href="/FinanceTracker/Help">
+                    <i class="bi bi-question-circle"></i><span>Help</span>
+                </a>
+            </nav>
+        </aside>
+
+        @* MAIN AREA (after sidebar) *@
+        <div class="app-main">
+
+            @* --- HEADER (fixed) --- *@
+            <header>
+                <div class="brand">TrackIt</div>
+
+                <div class="nav-links">
+                    @Html.ActionLink("Help", "Help", "FinanceTracker")
+                    @Html.ActionLink("About Us", "About", "FinanceTracker")
+                    @Html.ActionLink("Blog", "Blog", "FinanceTracker")
+                </div>
+
+                <div class="buttons">
+                    @* ✅ REAL LOGOUT (POST) + Redirect Home *@
+                    <form asp-area="Identity"
+                          asp-page="/Account/Logout"
+                          asp-route-returnUrl="/FinanceTracker/Home"
+                          method="post"
+                          style="margin:0;">
+                        <button type="submit" class="signup" style="border:none;">
+                            Logout
+                        </button>
+                    </form>
+                </div>
+            </header>
+
+            <div class="main-content">
+                @RenderBody()
+            </div>
+
+            @* --- FOOTER --- *@
+            <footer>
+                <div class="footer-content">
+                    <div class="footer-col footer-cta">
+                        <span class="footer-brand">TrackIt</span>
+                        <p>Empowering you to manage your money with clarity and confidence.</p>
+                        <a asp-area="Identity" asp-page="/Account/Register">Join Now</a>
+                    </div>
+
+                    <div class="footer-col">
+                        <h4>Product & Features</h4>
+                        <ul>
+                            <li>Expense Tracking</li>
+                            <li>Goals Tracking</li>
+                            <li>Reports & Analytics</li>
+                            <li>Reminders & Alerts</li>
+                        </ul>
+                    </div>
+
+                    <div class="footer-col">
+                        <h4>Company & Contact</h4>
+                        <ul>
+                            <li><a href="/FinanceTracker/About">About Us</a></li>
+                            <li><a href="/FinanceTracker/Help">Help</a></li>
+                            <li><a href="/FinanceTracker/Blog">Blog</a></li>
+                            <li><a href="/FinanceTracker/TermsOfServices">Terms of Service</a></li>
+                            <li><a href="/FinanceTracker/PrivacyPolicy">Privacy Policy</a></li>
+                        </ul>
+
+                        <div class="contact-info">
+                            <p style="margin-top: 20px;">Email: <a href="mailto:laibamunir@gmail.com">laibamunir@gmail.com</a></p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="footer-bottom">
+                    © 2025 TrackIt. All rights reserved.
+                </div>
+            </footer>
+
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.7/signalr.min.js"></script>
+
+    <script>
+      const connection = new signalR.HubConnectionBuilder()
+        .withUrl("/hubs/notifications")
+        .withAutomaticReconnect()
+        .build();
+
+      connection.on("DebtAlert", function (payload) {
+        if (window.Swal) {
+          Swal.fire({
+            icon: "warning",
+            title: "You are in debt",
+            text: payload.message,
+            confirmButtonText: "Ok"
+          });
+        } else {
+          alert(payload.message);
+        }
+      });
+
+      connection.start().catch(err => console.error(err.toString()));
+    </script>
+
+    @RenderSection("scripts", required: false)
+</body>
+</html>

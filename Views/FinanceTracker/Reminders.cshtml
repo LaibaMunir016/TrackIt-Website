@@ -1,0 +1,284 @@
+<script>
+(function () {
+    const userKey = "@(User?.Identity?.Name ?? "user")";
+    const KEY = "trackit_rem_v2_" + userKey;
+
+    const FIRED_KEY = "fired_rem_v2_" + userKey;          // one-time fired ids
+    const LAST_FIRE_KEY = "last_fire_rem_v2_" + userKey;  // recurring last fired timestamps
+    const PAST_KEY  = "trackit_rem_past_v2_" + userKey;
+
+    const els = {
+        title: document.getElementById("title"),
+        due: document.getElementById("due"),
+        minutesBefore: document.getElementById("minutesBefore"),
+        repeat: document.getElementById("repeat"),
+        list: document.getElementById("list"),
+        search: document.getElementById("search"),
+        filter: document.getElementById("filter"),
+        countActive: document.getElementById("count-active"),
+        nextMilestone: document.getElementById("next-milestone")
+    };
+
+    // -------------------------
+    // localStorage helpers
+    // -------------------------
+    function load() { try { return JSON.parse(localStorage.getItem(KEY) || "[]"); } catch { return []; } }
+    function save(items) { localStorage.setItem(KEY, JSON.stringify(items)); }
+
+    function loadPast() { try { return JSON.parse(localStorage.getItem(PAST_KEY) || "[]"); } catch { return []; } }
+    function savePast(items) { localStorage.setItem(PAST_KEY, JSON.stringify(items)); }
+
+    function loadFired() { try { return JSON.parse(localStorage.getItem(FIRED_KEY) || "[]"); } catch { return []; } }
+    function saveFired(items) { localStorage.setItem(FIRED_KEY, JSON.stringify(items)); }
+    function isFired(id) { return loadFired().includes(id); }
+    function markFired(id) {
+        const f = loadFired();
+        if (!f.includes(id)) { f.push(id); saveFired(f); }
+    }
+
+    function loadLastFire() { try { return JSON.parse(localStorage.getItem(LAST_FIRE_KEY) || "{}"); } catch { return {}; } }
+    function saveLastFire(map) { localStorage.setItem(LAST_FIRE_KEY, JSON.stringify(map)); }
+    function getLastFire(id) { return loadLastFire()[id] || 0; }
+    function setLastFire(id, ms) {
+        const map = loadLastFire();
+        map[id] = ms;
+        saveLastFire(map);
+    }
+
+    // -------------------------
+    // Repeat next occurrence
+    // -------------------------
+    function getNextMs(r) {
+        let ms = r.dueMs;
+        const now = Date.now();
+        const steps = { daily: 86400000, weekly: 604800000, monthly: 2592000000 };
+        const step = steps[r.repeat] || 0;
+        if (!step) return ms;
+
+        while (ms < now) ms += step;
+        return ms;
+    }
+
+    // -------------------------
+    // Date label
+    // -------------------------
+    function formatDateTime(ms) {
+        const d = new Date(ms);
+        return d.toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' });
+    }
+
+    // -------------------------
+    // Toast (NO auto-hide by default)
+    // -------------------------
+    let toastTimer = null;
+    function showToast(title, message, autoHideMs = 0) { // 0 = stay until user closes
+        const toast = document.getElementById("reminderToast");
+        const titleEl = document.getElementById("toastTitle");
+        const msgEl = document.getElementById("toastMessage"); // add this div in HTML if you want message text
+
+        if (titleEl) titleEl.innerText = title;
+        if (msgEl) msgEl.innerText = message;
+
+        toast.style.display = "block";
+
+        if (toastTimer) { clearTimeout(toastTimer); toastTimer = null; }
+        if (autoHideMs && autoHideMs > 0) {
+            toastTimer = setTimeout(() => { toast.style.display = "none"; }, autoHideMs);
+        }
+    }
+
+    // -------------------------
+    // Cleanup expired one-time reminders that were NEVER fired
+    // (kept separate, called only AFTER firing attempts each tick)
+    // -------------------------
+    function cleanupExpiredOneTime() {
+        const now = Date.now();
+        const items = load();
+
+        let changed = false;
+        const remaining = [];
+
+        items.forEach(r => {
+            if (r.repeat !== "none") { remaining.push(r); return; }
+
+            const due = r.dueMs;
+            if (due < now) {
+                const past = loadPast();
+                past.unshift({
+                    id: r.id,
+                    title: r.title,
+                    firedAtMs: now,
+                    dueMs: r.dueMs,
+                    minutesBefore: r.minutesBefore,
+                    missed: true
+                });
+                savePast(past);
+
+                markFired(r.id);
+                changed = true;
+            } else {
+                remaining.push(r);
+            }
+        });
+
+        if (changed) save(remaining);
+        return changed;
+    }
+
+    // -------------------------
+    // Render list
+    // -------------------------
+    function render() {
+        const items = load();
+        const q = (els.search.value || "").toLowerCase();
+        const now = Date.now();
+
+        const view = items
+            .map(r => ({ ...r, nextMs: (r.repeat === "none" ? r.dueMs : getNextMs(r)) }))
+            .filter(r => !q || r.title.toLowerCase().includes(q))
+            .filter(r => {
+                const mode = (els.filter && els.filter.value) ? els.filter.value : "upcoming";
+                if (mode === "all") return true;
+                return r.nextMs >= now; // only future items in upcoming
+            })
+            .sort((a,b) => a.nextMs - b.nextMs);
+
+        els.countActive.innerText = view.length;
+
+        if (view.length > 0) {
+            els.nextMilestone.innerText = formatDateTime(view[0].nextMs);
+        } else {
+            els.nextMilestone.innerText = "None";
+        }
+
+        els.list.innerHTML = view.length === 0
+            ? '<div class="text-center py-5 opacity-50">No active milestones.</div>'
+            : '';
+
+        view.forEach(r => {
+            const row = document.createElement("div");
+            row.className = "reminder-item";
+            row.innerHTML = `
+                <div class="d-flex align-items-center gap-3">
+                    <div class="icon-pill"><i class="bi bi-bell"></i></div>
+                    <div>
+                        <h6 class="mb-0 fw-bold">${r.title}</h6>
+                        <small class="text-muted">${formatDateTime(r.nextMs)}</small>
+                    </div>
+                </div>
+                <div class="d-flex align-items-center gap-3">
+                    <span class="badge-soft text-uppercase" style="font-size:0.65rem;">
+                        ${r.repeat === 'none' ? 'Once' : r.repeat}
+                    </span>
+                    <button class="btn btn-sm text-danger del-btn p-0"><i class="bi bi-trash3-fill"></i></button>
+                </div>
+            `;
+            row.querySelector(".del-btn").onclick = () => {
+                save(load().filter(x => x.id !== r.id));
+                render();
+            };
+            els.list.appendChild(row);
+        });
+    }
+
+    // -------------------------
+    // Add reminder
+    // -------------------------
+    document.getElementById("btnAdd").onclick = () => {
+        const title = els.title.value.trim();
+        const dueVal = els.due.value;
+
+        if (!title || !dueVal) {
+            alert("Please provide title and date.");
+            return;
+        }
+
+        const dueMs = new Date(dueVal).getTime(); // datetime-local is generally local; ok here
+
+        const items = load();
+        items.push({
+            id: crypto.randomUUID(),
+            title,
+            dueMs,
+            repeat: els.repeat.value,
+            minutesBefore: parseInt(els.minutesBefore.value, 10)
+        });
+        save(items);
+
+        els.title.value = "";
+        els.due.value = "";
+        render();
+    };
+
+    document.getElementById("btnClearAll").onclick = () => {
+        if (confirm("Permanently erase all reminders?")) {
+            save([]);
+            render();
+        }
+    };
+
+    document.getElementById("btnEnableNotifs").onclick = () => Notification.requestPermission();
+
+    els.search.oninput = render;
+    els.filter.onchange = render;
+
+    // -------------------------
+    // Checker — firing attempt ALWAYS runs before cleanup
+    // -------------------------
+    const CHECK_EVERY_MS = 1000; // check every second
+
+    setInterval(() => {
+        const items = load();
+        const now = Date.now();
+        let changed = false;
+
+        items.forEach(r => {
+            const nextMs = (r.repeat === "none") ? r.dueMs : getNextMs(r);
+            const alertTime = nextMs - (r.minutesBefore * 60000);
+
+            if (now >= alertTime) {
+                if (r.repeat === "none") {
+                    if (isFired(r.id)) return;
+                    markFired(r.id);
+                } else {
+                    const last = getLastFire(r.id);
+                    if (now - last < 60000) return; // at most once per minute
+                    setLastFire(r.id, now);
+                }
+
+                showToast("Reminder Due!", r.title, 0); // stays until user closes
+
+                if ("Notification" in window && Notification.permission === "granted") {
+                    new Notification("Finance Tracker Reminder", { body: r.title, icon: "/favicon.ico" });
+                }
+
+                if (r.repeat === "none") {
+                    const past = loadPast();
+                    past.unshift({
+                        id: r.id,
+                        title: r.title,
+                        firedAtMs: now,
+                        dueMs: r.dueMs,
+                        minutesBefore: r.minutesBefore,
+                        missed: false
+                    });
+                    savePast(past);
+
+                    save(load().filter(x => x.id !== r.id));
+                    changed = true;
+                }
+            }
+        });
+
+        // Cleanup runs AFTER firing attempts, so it only archives reminders
+        // that genuinely never got a chance to fire (e.g. tab was closed/asleep
+        // through the entire alert window) — it never beats the toast to the punch.
+        if (cleanupExpiredOneTime()) changed = true;
+
+        if (changed) render();
+    }, CHECK_EVERY_MS);
+
+    // Init
+    render();
+})();
+</script>

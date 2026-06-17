@@ -1,0 +1,377 @@
+@model IEnumerable<ProjectWeb.Models.Goal>
+@{
+    ViewData["Title"] = "Savings Goals";
+    Layout = "_Layout2";
+
+    string currency = ViewBag.Currency ?? "PKR";
+
+    var allGoals = (Model ?? Enumerable.Empty<ProjectWeb.Models.Goal>())
+        .OrderByDescending(g => g.StartDate)
+        .ToList();
+
+    var ongoingGoals = allGoals
+        .Where(g => !(g.IsAchieved || (g.TargetAmount > 0 && g.CurrentAmount >= g.TargetAmount)))
+        .ToList();
+
+    var accomplishedGoals = allGoals
+        .Where(g => (g.IsAchieved || (g.TargetAmount > 0 && g.CurrentAmount >= g.TargetAmount)))
+        .ToList();
+
+    var ongoingGrouped = ongoingGoals
+        .GroupBy(g => new { g.StartDate.Year, g.StartDate.Month })
+        .OrderByDescending(x => x.Key.Year).ThenByDescending(x => x.Key.Month)
+        .ToList();
+
+    var accomplishedGrouped = accomplishedGoals
+        .GroupBy(g => new { g.StartDate.Year, g.StartDate.Month })
+        .OrderByDescending(x => x.Key.Year).ThenByDescending(x => x.Key.Month)
+        .ToList();
+
+    decimal totalSaved = allGoals.Sum(g => g.CurrentAmount);
+    int activeCount = ongoingGoals.Count;
+    int completedCount = accomplishedGoals.Count;
+
+    var todayStr = DateTime.Today.ToString("yyyy-MM-dd");
+}
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+
+<style>
+    .mainContent { color: rgb(29, 43, 54); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
+
+    .card-glass {
+        backdrop-filter: blur(14px);
+        -webkit-backdrop-filter: blur(14px);
+        background: #ffffff;
+        border-radius: 20px;
+        border: 1px solid rgba(255, 255, 255, 0.35);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+        padding: 24px;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .dashboard-h2 { font-weight: 700; color: rgb(29, 43, 54); margin-bottom: 6px; }
+    .dashboard-p { opacity: 0.75; margin: 0; }
+
+    .stat-box-glass {
+        background: rgba(255, 255, 255, 0.7);
+        backdrop-filter: blur(10px);
+        border-radius: 20px;
+        padding: 20px 22px;
+        border: 1px solid rgba(29, 43, 54, 0.10);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+        text-align: center;
+    }
+    .stat-box-glass i {
+        font-size: 1.5rem;
+        margin-bottom: 6px;
+        color: rgba(29,43,54,0.9);
+    }
+    .stat-box-glass small {
+        display:block;
+        color: rgba(29,43,54,0.65);
+        font-weight: 600;
+    }
+    .stat-box-glass h5 {
+        margin-top: 6px;
+        font-weight: 700;
+        color: rgba(29,43,54,0.92);
+    }
+
+    .goal-card {
+        border-radius: 22px;
+        background: white;
+        border: 1px solid rgba(29, 43, 54, 0.08);
+        padding: 20px;
+        height: 100%;
+        position: relative;
+        overflow: hidden;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .goal-card::before{
+        content:"";
+        position:absolute;
+        left:0;
+        top:0;
+        height:100%;
+        width:4px;
+        background: rgba(29, 43, 54, 0.92);
+    }
+    .goal-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 12px 30px rgba(0,0,0,0.08);
+        border-color: rgba(29, 43, 54, 0.2);
+    }
+
+    .goal-card.completed {
+        background: linear-gradient(145deg, #ffffff, #f6fbf9);
+        border-color: rgba(16, 185, 129, 0.20);
+    }
+    .goal-card.completed::before{
+        background: rgba(16, 185, 129, 0.85);
+    }
+
+    .goal-icon-box {
+        width: 48px;
+        height: 48px;
+        border-radius: 14px;
+        background: rgba(29, 43, 54, 0.05);
+        color: rgb(29, 43, 54);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.3rem;
+    }
+
+    .badge-premium-style {
+        font-size: 10px;
+        font-weight: 800;
+        padding: 5px 12px;
+        border-radius: 50px;
+        letter-spacing: 0.5px;
+    }
+    .badge-inprogress {
+        background: rgba(29,43,54,0.10) !important;
+        color: rgb(29,43,54) !important;
+    }
+
+    .btn-brand {
+        background-color: rgb(29, 43, 54) !important;
+        color: white !important;
+        font-weight: 700;
+        border-radius: 12px;
+        padding: 10px 20px;
+        border: none;
+        transition: opacity 0.2s;
+    }
+    .btn-brand:hover, .btn-brand:active, .btn-brand:focus {
+        opacity: 0.9;
+        background-color: rgb(29, 43, 54) !important;
+        color: white !important;
+        box-shadow: none !important;
+    }
+
+    .progress { height: 8px; border-radius: 999px; background: rgba(29, 43, 54, 0.05); }
+    .progress-bar { background-color: rgb(29, 43, 54); border-radius: 999px; }
+    .bar-done { background-color: #10b981; }
+
+    #addGoalModal.modal { padding-top: 110px !important; }
+    #addGoalModal .modal-dialog { margin-top: 0 !important; }
+    @@media (max-width: 576px) {
+        #addGoalModal.modal { padding-top: 85px !important; }
+    }
+
+    .section-title-row{
+        margin-top: 0.5rem;
+        margin-bottom: 1rem;
+        display:flex;
+        align-items:center;
+        justify-content: space-between;
+    }
+</style>
+
+<div class="container-fluid mainContent py-4">
+    <div class="text-center mb-5">
+        <div>
+            <h2 class="dashboard-h2">Track Goals</h2>
+            <p class="dashboard-p mb-3">Set targets and track your journey toward financial freedom.</p>
+        </div>
+        <button class="btn btn-brand" data-bs-toggle="modal" data-bs-target="#addGoalModal">
+            <i class="bi bi-plus-lg me-2"></i>New Goal
+        </button>
+    </div>
+
+    <div class="row g-3 mb-5">
+        <div class="col-md-4">
+            <div class="stat-box-glass">
+                <i class="bi bi-piggy-bank"></i>
+                <small>Total Amount Saved</small>
+                <h5>@currency @totalSaved.ToString("N0")</h5>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="stat-box-glass">
+                <i class="bi bi-bullseye"></i>
+                <small>Active Milestones</small>
+                <h5>@activeCount Ongoing</h5>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="stat-box-glass">
+                <i class="bi bi-trophy"></i>
+                <small>Goals Accomplished</small>
+                <h5>@completedCount Finished</h5>
+            </div>
+        </div>
+    </div>
+
+    @if (!allGoals.Any())
+    {
+        <div class="card-glass text-center py-5">
+            <i class="bi bi-flag mb-3 d-block text-muted" style="font-size: 3rem;"></i>
+            <h4 class="fw-bold">No goals created yet</h4>
+            <p class="text-muted mb-4">Start your savings journey by defining your first financial target.</p>
+            <button class="btn btn-brand" data-bs-toggle="modal" data-bs-target="#addGoalModal">
+                Create First Goal
+            </button>
+        </div>
+    }
+    else
+    {
+        <div class="section-title-row">
+            <h5 class="fw-bold mb-0">Active Progress</h5>
+            <span class="text-muted small">Ongoing goals</span>
+        </div>
+
+        @foreach (var group in ongoingGrouped)
+        {
+            var monthLabel = new DateTime(group.Key.Year, group.Key.Month, 1).ToString("MMMM yyyy");
+            <div class="mb-3 mt-4 text-muted small fw-bold text-uppercase" style="letter-spacing: 1px;">@monthLabel</div>
+
+            <div class="row g-4">
+                @foreach (var goal in group)
+                {
+                    var pctRaw = goal.TargetAmount > 0 ? (goal.CurrentAmount / goal.TargetAmount) * 100m : 0m;
+                    var pct = (int)Math.Round(pctRaw);
+                    var pctClamped = Math.Min(100, Math.Max(0, pct));
+                    var remaining = Math.Max(0, goal.TargetAmount - goal.CurrentAmount);
+
+                    <div class="col-md-6 col-lg-4">
+                        <div class="goal-card">
+                            <div class="d-flex justify-content-between align-items-start mb-3">
+                                <div class="goal-icon-box"><i class="bi bi-bullseye"></i></div>
+                                <span class="badge badge-premium-style badge-inprogress">In Progress</span>
+                            </div>
+
+                            <h6 class="fw-bold mb-1" style="font-size: 1.1rem;">@goal.Title</h6>
+                            <p class="text-muted small mb-3 text-truncate">@(goal.Notes ?? "No additional notes")</p>
+
+                            <div class="d-flex justify-content-between mb-1 small fw-bold">
+                                <span>@pctClamped% reached</span>
+                                <span class="text-muted">@currency @goal.CurrentAmount.ToString("N0") / @goal.TargetAmount.ToString("N0")</span>
+                            </div>
+                            <div class="progress mb-3">
+                                <div class="progress-bar" role="progressbar" data-pct="@pctClamped"></div>
+                            </div>
+
+                            <form class="d-flex gap-2 needs-inline-validate" asp-action="AddToGoal" method="post">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="goalId" value="@goal.GoalId" />
+                                <input type="number" name="amount" class="form-control form-control-sm"
+                                       placeholder="Add Amount" max="@remaining" required style="border-radius: 10px; font-weight: 600;" />
+                                <button type="submit" class="btn btn-brand btn-sm px-3" style="border-radius: 10px;">
+                                    <i class="bi bi-plus-lg"></i>
+                                </button>
+                            </form>
+
+                            <div class="mt-3 pt-2 border-top">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <span class="text-muted" style="font-size: 11px;"><i class="bi bi-calendar-event me-1"></i>Start: @goal.StartDate.ToString("dd MMM yyyy")</span>
+                                    <span class="text-muted" style="font-size: 11px;"><i class="bi bi-flag-fill me-1"></i>Target: @goal.TargetDate.ToString("dd MMM yyyy")</span>
+                                </div>
+                                <div class="text-center">
+                                    <span class="text-muted" style="font-size: 11px;"><i class="bi bi-clock me-1"></i>Remaining: @currency @remaining.ToString("N0")</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+
+        @if (accomplishedGoals.Any())
+        {
+            <div class="mt-5 section-title-row">
+                <h5 class="fw-bold mb-0">Hall of Fame</h5>
+                <span class="text-muted small">Completed milestones</span>
+            </div>
+
+            @foreach (var group in accomplishedGrouped)
+            {
+                <div class="row g-4">
+                    @foreach (var goal in group)
+                    {
+                        <div class="col-md-6 col-lg-4">
+                            <div class="goal-card completed shadow-sm">
+                                <div class="d-flex justify-content-between align-items-start mb-3">
+                                    <div class="goal-icon-box bg-success bg-opacity-10 text-success"><i class="bi bi-trophy-fill"></i></div>
+                                    <span class="badge badge-premium-style bg-success bg-opacity-10 text-success">Achieved</span>
+                                </div>
+                                <h6 class="fw-bold mb-1">@goal.Title</h6>
+                                <p class="text-muted small mb-0">Total Saved: @currency @goal.TargetAmount.ToString("N0")</p>
+                                <div class="progress mt-3">
+                                    <div class="progress-bar bar-done w-100"></div>
+                                </div>
+                                <div class="mt-2 text-center">
+                                    <small class="text-success fw-bold" style="font-size: 10px;">
+                                        Completed on: @(goal.AchievedDate?.ToString("dd MMM yyyy") ?? goal.TargetDate.ToString("dd MMM yyyy"))
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+        }
+    }
+</div>
+
+<div class="modal fade" id="addGoalModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content" style="border-radius: 20px;">
+            <div class="modal-header" style="background-color: rgb(29, 43, 54); color: white;">
+                <h5 class="modal-title fw-bold">Define New Goal</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4 text-dark">
+                <form id="goalForm" asp-action="CreateGoal" method="post">
+                    @Html.AntiForgeryToken()
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Goal Title</label>
+                        <input type="text" name="GoalName" class="form-control" placeholder="e.g., Retirement Fund" required />
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Target Amount (@currency)</label>
+                        <input type="number" name="TargetAmount" step="0.01" min="0.01" class="form-control" placeholder="0.00" required />
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Target Date</label>
+                        <input id="goalTargetDate" type="date" name="Deadline" class="form-control" required />
+                        <small class="text-muted">Choose a date after today.</small>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Notes (optional)</label>
+                        <textarea name="Description" class="form-control" rows="2" placeholder="Add any details..."></textarea>
+                    </div>
+
+                    <button type="submit" class="btn w-100 py-2 fw-bold text-white" style="background-color: rgb(29, 43, 54); border-radius: 10px;">
+                        Start Saving
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    //goal page open hote hi progress bar full hote huay ki animation show krne k liye
+    document.addEventListener('DOMContentLoaded', () => {
+        document.querySelectorAll('.progress-bar[data-pct]').forEach(bar => {
+            const pct = bar.getAttribute('data-pct') || '0';
+            setTimeout(() => bar.style.width = pct + '%', 300);
+        });
+        //user past date choose na kr sky or default date today ki set ho
+        const minDate = '@todayStr';
+        const target = document.getElementById('goalTargetDate');
+        if (target) {
+            target.setAttribute('min', minDate);
+            if (!target.value) target.value = minDate;
+        }
+    });
+</script>

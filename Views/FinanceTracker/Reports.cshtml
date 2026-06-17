@@ -1,0 +1,510 @@
+@using System.Text.Json
+@{
+    ViewData["Title"] = "Financial Insights & Analytics";
+    Layout = "_Layout2";
+
+    string FormatMoney(object amount, string code)
+    {
+        decimal val = 0m;
+        try { val = Convert.ToDecimal(amount); } catch { val = 0m; }
+
+        var symbols = new Dictionary<string, string> {
+            { "PKR", "PKR" }, { "USD", "USD" }, { "SAR", "SAR" }, { "AED", "AED" },
+            { "GBP", "GBP" }, { "EUR", "EUR" }, { "INR", "INR" }, { "TRY", "TRY" },
+            { "CAD", "CAD" }, { "AUD", "AUD" }
+        };
+        string sym = symbols.ContainsKey(code) ? symbols[code] : "PKR";
+        return $"{sym} {val:N0}";
+    }
+
+    decimal income = ViewBag.TotalIncome ?? 0m;
+    decimal expense = ViewBag.TotalExpense ?? 0m;
+    decimal balance = (ViewBag.Balance ?? (income - expense));
+    string cur = ViewBag.Currency ?? "PKR";
+
+    dynamic metrics = ViewBag.Metrics;
+    decimal savingsRate = 0m;
+    decimal expenseRatio = 0m;
+    decimal avgMonthlyIncome = 0m;
+    decimal avgMonthlyExpense = 0m;
+    string topCategory = "None";
+    decimal topCategoryAmount = 0m;
+
+    try
+    {
+        savingsRate = metrics?.SavingsRate ?? (income > 0 ? (balance / income) * 100 : 0);
+        expenseRatio = metrics?.ExpenseRatio ?? (income > 0 ? (expense / income) * 100 : 0);
+        avgMonthlyIncome = metrics?.AverageMonthlyIncome ?? 0m;
+        avgMonthlyExpense = metrics?.AverageMonthlyExpense ?? 0m;
+        topCategory = metrics?.TopCategory ?? "None";
+        topCategoryAmount = metrics?.TopCategoryAmount ?? 0m;
+    }
+    catch { }
+
+    decimal savingsTarget = 20m;
+    decimal expenseTarget = 80m;
+
+    decimal savingsProgress = (income > 0 && savingsTarget > 0)
+        ? Math.Min((savingsRate / savingsTarget) * 100m, 100m)
+        : 0m;
+
+    decimal expenseProgress = (income > 0 && expenseTarget > 0)
+        ? Math.Min((expenseRatio / expenseTarget) * 100m, 100m)
+        : 0m;
+
+    var insights = ViewBag.Insights as List<string> ?? new List<string>();
+
+    var chartLabels = ViewBag.ChartLabels as string[] ?? Array.Empty<string>();
+    var incomeData = ViewBag.IncomeData as decimal[] ?? Array.Empty<decimal>();
+    var expenseData = ViewBag.ExpenseData as decimal[] ?? Array.Empty<decimal>();
+
+    var categoryLabels = ViewBag.CategoryLabels as string[] ?? Array.Empty<string>();
+    var categoryData = ViewBag.CategoryData as decimal[] ?? Array.Empty<decimal>();
+
+    var weeklyLabels = ViewBag.WeeklyLabels as string[] ?? Array.Empty<string>();
+    var weeklyData = ViewBag.WeeklyData as decimal[] ?? Array.Empty<decimal>();
+
+    string jsonChartLabels = JsonSerializer.Serialize(chartLabels);
+    string jsonIncomeData = JsonSerializer.Serialize(incomeData);
+    string jsonExpenseData = JsonSerializer.Serialize(expenseData);
+
+    string jsonCategoryLabels = JsonSerializer.Serialize(categoryLabels);
+    string jsonCategoryData = JsonSerializer.Serialize(categoryData);
+
+    string jsonWeeklyLabels = JsonSerializer.Serialize(weeklyLabels);
+    string jsonWeeklyData = JsonSerializer.Serialize(weeklyData);
+}
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<style>
+/* ✅ FIX 2: Everything scoped inside .trackit-reports (NO global resets, NO :root) */
+.trackit-reports, .trackit-reports * { box-sizing: border-box; }
+
+/* Use your layout theme vars */
+.trackit-reports {
+    color: var(--primary-dark);
+}
+
+/* Make it feel like your other pages (same spacing + background comes from layout main-content already) */
+.trackit-reports .wrap {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* Header */
+.trackit-reports .hdr {
+    text-align: center;
+    margin-bottom: 22px;
+}
+.trackit-reports .hdr h1 {
+    font-size: 28px;
+    font-weight: 700;
+    margin: 0 0 6px 0;
+    color: var(--primary-dark);
+}
+.trackit-reports .hdr p {
+    margin: 0;
+    color: rgba(29,43,54,0.75);
+}
+
+/* Cards */
+.trackit-reports .grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 14px;
+    margin-bottom: 18px;
+}
+
+.trackit-reports .card {
+    background: #fff;
+    border-radius: 18px;
+    border: 1px solid rgba(29,43,54,0.10);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.06);
+    padding: 16px;
+    position: relative;
+    overflow: hidden;
+}
+
+.trackit-reports .card::before{
+    content:"";
+    position:absolute;
+    left:0; top:0;
+    width:4px; height:100%;
+    background: rgba(29,43,54,0.92);
+}
+
+/* top metric cards (no left strip) */
+.trackit-reports .metric::before{ display:none; }
+
+.trackit-reports .metric-top {
+    display:flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 10px;
+}
+.trackit-reports .label {
+    font-size: 12px;
+    letter-spacing: .06em;
+    font-weight: 800;
+    color: rgba(29,43,54,0.65);
+    text-transform: uppercase;
+}
+.trackit-reports .value {
+    font-size: 24px;
+    font-weight: 800;
+    margin-top: 4px;
+}
+.trackit-reports .sub {
+    display:flex;
+    align-items:center;
+    gap: 8px;
+    margin-top: 8px;
+    color: rgba(29,43,54,0.65);
+    font-size: 13px;
+}
+.trackit-reports .iconBox{
+    width: 42px;
+    height: 42px;
+    border-radius: 14px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background: rgba(29,43,54,0.08);
+    color: rgba(29,43,54,0.92);
+}
+
+/* Charts */
+.trackit-reports .charts {
+    display:grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+    margin-top: 14px;
+}
+
+.trackit-reports .chartHead{
+    display:flex;
+    align-items:center;
+    justify-content: space-between;
+    gap: 10px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid rgba(29,43,54,0.08);
+    margin-bottom: 12px;
+}
+.trackit-reports .chartTitle{
+    font-weight: 800;
+    color: rgba(29,43,54,0.92);
+    display:flex;
+    align-items:center;
+    gap: 10px;
+    margin: 0;
+    font-size: 16px;
+}
+.trackit-reports .chartBox{
+    height: 300px;
+}
+
+/* Comparison + insights */
+.trackit-reports .bottom {
+    display:grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 14px;
+    margin-top: 14px;
+}
+
+.trackit-reports .progressRow{
+    display:flex;
+    justify-content: space-between;
+    color: rgba(29,43,54,0.65);
+    font-size: 13px;
+    margin-bottom: 8px;
+}
+.trackit-reports .bar{
+    height: 8px;
+    background: rgba(29,43,54,0.08);
+    border-radius: 999px;
+    overflow:hidden;
+}
+.trackit-reports .fill{
+    height:100%;
+    border-radius: 999px;
+    background: rgba(29,43,54,0.92);
+    width: 0%;
+}
+
+.trackit-reports .note{
+    margin-top: 18px;
+    text-align:center;
+    color: rgba(29,43,54,0.60);
+    font-size: 13px;
+}
+
+/* Responsive */
+@@media (max-width: 1100px){
+    .trackit-reports .grid{ grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .trackit-reports .charts{ grid-template-columns: 1fr; }
+    .trackit-reports .bottom{ grid-template-columns: 1fr; }
+}
+</style>
+
+<div class="trackit-reports">
+    <div class="wrap">
+        <div class="hdr">
+            <h1>Financial Analytics Dashboard</h1>
+            <p>Comprehensive insights into your income, expenses, trends, and patterns</p>
+        </div>
+
+        <!-- Metrics -->
+        <div class="grid">
+            <div class="card metric">
+                <div class="metric-top">
+                    <div>
+                        <div class="label">Total Income</div>
+                        <div class="value" style="color:#10b981;">@FormatMoney(income, cur)</div>
+                        <div class="sub"><i class="fa-solid fa-calendar"></i> Avg: @FormatMoney(avgMonthlyIncome, cur) / month</div>
+                    </div>
+                    <div class="iconBox"><i class="fa-solid fa-money-bill-wave"></i></div>
+                </div>
+            </div>
+
+            <div class="card metric">
+                <div class="metric-top">
+                    <div>
+                        <div class="label">Total Expenses</div>
+                        <div class="value" style="color:#ef4444;">@FormatMoney(expense, cur)</div>
+                        <div class="sub"><i class="fa-solid fa-calendar"></i> Avg: @FormatMoney(avgMonthlyExpense, cur) / month</div>
+                    </div>
+                    <div class="iconBox"><i class="fa-solid fa-credit-card"></i></div>
+                </div>
+            </div>
+
+            <div class="card metric">
+                <div class="metric-top">
+                    <div>
+                        <div class="label">Net Balance</div>
+                        <div class="value">@FormatMoney(balance, cur)</div>
+                        <div class="sub"><i class="fa-solid fa-percent"></i> Savings rate: @($"{savingsRate:F1}%")</div>
+                    </div>
+                    <div class="iconBox"><i class="fa-solid fa-scale-balanced"></i></div>
+                </div>
+            </div>
+
+            <div class="card metric">
+                <div class="metric-top">
+                    <div>
+                        <div class="label">Expense Ratio</div>
+                        <div class="value" style="color:#f59e0b;">@($"{expenseRatio:F1}%")</div>
+                        <div class="sub"><i class="fa-solid fa-tag"></i> Top: @topCategory (@FormatMoney(topCategoryAmount, cur))</div>
+                    </div>
+                    <div class="iconBox"><i class="fa-solid fa-chart-pie"></i></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts -->
+        <div class="charts">
+            <div class="card">
+                <div class="chartHead">
+                    <h3 class="chartTitle"><i class="fa-solid fa-chart-line"></i> Income vs Expenses Trend</h3>
+                </div>
+                <div class="chartBox">
+                    <canvas id="trendChart"></canvas>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="chartHead">
+                    <h3 class="chartTitle"><i class="fa-solid fa-chart-pie"></i> Expense Category Distribution</h3>
+                </div>
+                <div class="chartBox">
+                    <canvas id="categoryChart"></canvas>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="chartHead">
+                    <h3 class="chartTitle"><i class="fa-solid fa-chart-bar"></i> Period Comparison</h3>
+                </div>
+                <div class="chartBox">
+                    <canvas id="comparisonChart"></canvas>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="chartHead">
+                    <h3 class="chartTitle"><i class="fa-solid fa-calendar-week"></i> Weekly Spending Pattern</h3>
+                </div>
+                <div class="chartBox">
+                    <canvas id="weeklyChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bottom -->
+        <div class="bottom">
+            <div class="card">
+                <h3 class="chartTitle" style="margin-bottom:12px;"><i class="fa-solid fa-piggy-bank"></i> Savings Rate</h3>
+                <div class="value">@($"{savingsRate:F1}%")</div>
+                <div class="progressRow"><span>Target: 20%</span><span>Actual</span></div>
+                <div class="bar"><div class="fill" style="width:@($"{savingsProgress:F0}%")"></div></div>
+            </div>
+
+            <div class="card">
+                <h3 class="chartTitle" style="margin-bottom:12px;"><i class="fa-solid fa-triangle-exclamation"></i> Expense Ratio</h3>
+                <div class="value">@($"{expenseRatio:F1}%")</div>
+                <div class="progressRow"><span>Target: ≤80%</span><span>Actual</span></div>
+                <div class="bar"><div class="fill" style="width:@($"{expenseProgress:F0}%")"></div></div>
+            </div>
+
+            <div class="card">
+                <h3 class="chartTitle" style="margin-bottom:12px;"><i class="fa-solid fa-lightbulb"></i> Insights</h3>
+                @if (insights != null && insights.Count > 0)
+                {
+                    <ul style="margin:0; padding-left: 18px; color: rgba(29,43,54,0.75); line-height:1.7;">
+                        @foreach (var i in insights) { <li>@i</li> }
+                    </ul>
+                }
+                else
+                {
+                    <p style="margin:0; color: rgba(29,43,54,0.70);">No generated insights yet.</p>
+                }
+            </div>
+        </div>
+
+        <div class="note">
+            Report generated on @DateTime.Now.ToString("MMMM dd, yyyy 'at' hh:mm tt")
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1"></script>
+
+<script>
+    const reportData = {
+        trend: {
+            labels: @Html.Raw(jsonChartLabels),
+            income: @Html.Raw(jsonIncomeData),
+            expense: @Html.Raw(jsonExpenseData)
+        },
+        categories: {
+            labels: @Html.Raw(jsonCategoryLabels),
+            data: @Html.Raw(jsonCategoryData)
+        },
+        weekly: {
+            labels: @Html.Raw(jsonWeeklyLabels),
+            data: @Html.Raw(jsonWeeklyData)
+        }
+    };
+
+    document.addEventListener("DOMContentLoaded", function () {
+        initializeTrendChart();
+        initializeCategoryChart();
+        initializeComparisonChart();
+        initializeWeeklyChart();
+    });
+
+    function formatCurrency(value) {
+        const currency = '@cur';
+        const symbols = { 'PKR': 'PKR ', 'USD': 'USD ', 'EUR': 'EUR ', 'GBP': 'GBP ', 'SAR': 'SAR ', 'AED': 'AED ' };
+        const symbol = symbols[currency] || 'PKR ';
+        const num = Number(value || 0);
+        return symbol + num.toLocaleString();
+    }
+
+    function baseOptions() {
+        return {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: true },
+                tooltip: {
+                    backgroundColor: 'rgba(29, 43, 54, 0.92)',
+                    callbacks: {
+                        label: (ctx) => `${ctx.dataset.label}: ${formatCurrency(ctx.parsed.y ?? ctx.parsed)}`
+                    }
+                }
+            },
+            scales: {
+                x: { grid: { display: false } },
+                y: {
+                    beginAtZero: true,
+                    ticks: { callback: (v) => formatCurrency(v) }
+                }
+            }
+        };
+    }
+
+    function initializeTrendChart() {
+        const ctx = document.getElementById('trendChart').getContext('2d');
+        const labels = reportData.trend.labels.length ? reportData.trend.labels : ['No data'];
+        const inc = reportData.trend.income.length ? reportData.trend.income : [0];
+        const exp = reportData.trend.expense.length ? reportData.trend.expense : [0];
+
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels,
+                datasets: [
+                    { label: 'Income', data: inc, borderColor: 'rgb(16,185,129)', backgroundColor: 'rgba(16,185,129,0.12)', fill: true, tension: 0.35 },
+                    { label: 'Expenses', data: exp, borderColor: 'rgb(239,68,68)', backgroundColor: 'rgba(239,68,68,0.12)', fill: true, tension: 0.35 }
+                ]
+            },
+            options: baseOptions()
+        });
+    }
+
+    function initializeCategoryChart() {
+        const ctx = document.getElementById('categoryChart').getContext('2d');
+        const labels = reportData.categories.labels.length ? reportData.categories.labels : ['No data'];
+        const data = reportData.categories.data.length ? reportData.categories.data : [0];
+
+        new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels,
+                datasets: [{
+                    data,
+                    backgroundColor: [
+                        'rgba(59,130,246,0.85)','rgba(16,185,129,0.85)','rgba(245,158,11,0.85)',
+                        'rgba(239,68,68,0.85)','rgba(139,92,246,0.85)','rgba(236,72,153,0.85)'
+                    ],
+                    borderColor: '#fff',
+                    borderWidth: 2
+                }]
+            },
+            options: { responsive:true, maintainAspectRatio:false, plugins:{ legend:{ position:'right' } } }
+        });
+    }
+
+    function initializeComparisonChart() {
+        const ctx = document.getElementById('comparisonChart').getContext('2d');
+        const labels = reportData.trend.labels.length ? reportData.trend.labels : ['No data'];
+        const inc = reportData.trend.income.length ? reportData.trend.income : [0];
+        const exp = reportData.trend.expense.length ? reportData.trend.expense : [0];
+
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels,
+                datasets: [
+                    { label: 'Income', data: inc, backgroundColor: 'rgba(16,185,129,0.25)', borderColor: 'rgb(16,185,129)', borderWidth: 2 },
+                    { label: 'Expenses', data: exp, backgroundColor: 'rgba(239,68,68,0.25)', borderColor: 'rgb(239,68,68)', borderWidth: 2 }
+                ]
+            },
+            options: baseOptions()
+        });
+    }
+
+    function initializeWeeklyChart() {
+        const ctx = document.getElementById('weeklyChart').getContext('2d');
+        const labels = reportData.weekly.labels.length ? reportData.weekly.labels : ['No data'];
+        const data = reportData.weekly.data.length ? reportData.weekly.data : [0];
+
+        new Chart(ctx, {
+            type: 'bar',
+            data: { labels, datasets: [{ label: 'Daily Spend', data, backgroundColor:'rgba(59,130,246,0.85)' }] },
+            options: baseOptions()
+        });
+    }
+</script>
