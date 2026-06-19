@@ -4,17 +4,11 @@ using ProjectWeb.Models;
 using ProjectWeb.Data;
 using ProjectWeb.Models.Repository;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.HttpOverrides;
 using ProjectWeb.Interface;
 AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 var builder = WebApplication.CreateBuilder(args);
 
-// ----------------------------------------------------------
-// 0. PORT BINDING (required for Render)
-// ----------------------------------------------------------
-// var port = Environment.GetEnvironmentVariable("PORT") ?? "10000";
-// builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
-
-// ----------------------------------------------------------
 // 1. DATABASE + IDENTITY
 // ----------------------------------------------------------
 
@@ -61,6 +55,10 @@ builder.Services.AddAuthorization(options =>
 });
 
 var app = builder.Build();
+app.UseForwardedHeaders(new ForwardedHeadersOptions
+{
+    ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+});
 
 // ----------------------------------------------------------
 // 2. MIDDLEWARE
