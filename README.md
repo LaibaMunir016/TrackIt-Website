@@ -1,6 +1,5 @@
 # TrackIt
-TrackIt is a personal finance tracker that lets users record income, categorize expenses, and monitor spending trends over time.  
-It includes goal tracking, reminders, interactive dashboard graphs, and detailed reports to help users stay on top of their finances.
+TrackIt is a personal finance tracker that lets users record income, categorize expenses, and monitor spending trends over time. It includes goal tracking, reminders, interactive dashboard graphs, and detailed reports to help users stay on top of their finances.
 
 ---
 ## ✨ Features
